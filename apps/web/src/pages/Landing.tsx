@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Navbar } from '../components/landing/Navbar';
-import { Hero } from '../components/landing/Hero';
+import { Hero, type Vertical } from '../components/landing/Hero';
 import { Problem } from '../components/landing/Problem';
 import { Solution } from '../components/landing/Solution';
 import { ProductOverview } from '../components/landing/ProductOverview';
@@ -23,12 +24,13 @@ import { Footer } from '../components/landing/Footer';
 import { CtaBand } from '../components/landing/CtaBand';
 
 export function Landing() {
+  const [vertical, setVertical] = useState<Vertical>('barbershop');
   return (
     <div className="min-h-screen">
       <Navbar />
       <main>
-        <Hero />
-        <Problem />
+        <Hero vertical={vertical} onSelect={setVertical} />
+        <Problem vertical={vertical} />
         <Solution />
         <ProductOverview />
         <div className="bg-ink-50">
@@ -39,8 +41,7 @@ export function Landing() {
             />
           </div>
         </div>
-        <BarbershopManagement />
-        <CarwashManagement />
+        {vertical === 'barbershop' ? <BarbershopManagement /> : <CarwashManagement />}
         <CustomerProfile />
         <Booking />
         <Queue />

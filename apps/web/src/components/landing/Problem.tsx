@@ -1,8 +1,27 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
 
 const barbershopFlow = ['Booking', 'Staff', 'Layanan', 'Pembayaran', 'Pelanggan'];
 const carwashFlow = ['Antrian', 'Bay', 'Layanan', 'Pembayaran', 'Pelanggan'];
+
+const flowByVertical: Record<
+  Vertical,
+  { icon: string; title: string; tone: string; flow: string[] }
+> = {
+  barbershop: {
+    icon: 'scissors',
+    title: 'Alur barbershop',
+    tone: 'text-brand-600 bg-brand-50',
+    flow: barbershopFlow,
+  },
+  car_wash: {
+    icon: 'car',
+    title: 'Alur car wash',
+    tone: 'text-cyan-600 bg-cyan-50',
+    flow: carwashFlow,
+  },
+};
 
 const withoutWashcut = [
   ['note', 'Spreadsheet untuk jadwal'],
@@ -11,33 +30,23 @@ const withoutWashcut = [
   ['trash', 'Catatan manual di buku'],
 ] as const;
 
-export function Problem() {
+export function Problem({ vertical }: { vertical: Vertical }) {
+  const { icon, title, tone, flow } = flowByVertical[vertical];
   return (
     <Section id="masalah">
       <SectionHeader
         kicker="Masalah"
         title={
           <>
-            Menjalankan dua bisnis jasa{' '}
-            <span className="text-brand-600">tidak berarti dua sistem</span>
+            Menjalankan bisnis Anda{' '}
+            <span className="text-brand-600">tidak berarti banyak sistem</span>
           </>
         }
-        subtitle="Booking, staf, pembayaran, dan laporan berpencar di aplikasi berbeda. Semakin banyak tool, semakin banyak pekerjaan yang terlewat."
+        subtitle="Jadwal, staf, pembayaran, dan laporan berpencar di aplikasi berbeda. Semakin banyak tool, semakin banyak pekerjaan yang terlewat."
       />
 
-      <div className="mt-12 grid gap-5 md:grid-cols-2">
-        <FlowCard
-          icon="scissors"
-          title="Barbershop"
-          tone="text-brand-600 bg-brand-50"
-          flow={barbershopFlow}
-        />
-        <FlowCard
-          icon="car"
-          title="Car wash"
-          tone="text-cyan-600 bg-cyan-50"
-          flow={carwashFlow}
-        />
+      <div className="mx-auto mt-12 max-w-3xl">
+        <FlowCard icon={icon} title={title} tone={tone} flow={flow} />
       </div>
 
       <div className="mt-10 rounded-2xl border border-danger-200 bg-white p-6 sm:p-8">

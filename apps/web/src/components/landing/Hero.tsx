@@ -1,8 +1,10 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../ui/Icon';
 
 const Hero3D = lazy(() => import('../three/Hero3D').then((m) => ({ default: m.Hero3D })));
+
+export type Vertical = 'barbershop' | 'car_wash';
 
 const trust = [
   ['check', 'Tanpa kartu kredit'],
@@ -10,7 +12,38 @@ const trust = [
   ['building', 'Dibangun untuk bisnis jasa modern'],
 ] as const;
 
-export function Hero() {
+const copy: Record<
+  Vertical,
+  { title: ReactNode; sub: string }
+> = {
+  barbershop: {
+    title: (
+      <>
+        Jalankan barbershop Anda dari satu sistem yang{' '}
+        <span className="text-brand-400">rapi</span>
+      </>
+    ),
+    sub: 'Booking kursi, jadwal barber, grooming, kasir, dan pelanggan — semua terhubung dalam satu dashboard. Tidak perlu buku jadwal, POS terpisah, atau catatan manual.',
+  },
+  car_wash: {
+    title: (
+      <>
+        Dari antrian sampai mobil <span className="text-cyan-400">bersih</span> — semua dari satu
+        sistem
+      </>
+    ),
+    sub: 'Antrian, bay, kendaraan, kasir, dan pelanggan — semua terhubung dalam satu dashboard. Tidak perlu papan tulis, POS terpisah, atau catatan manual.',
+  },
+};
+
+export function Hero({
+  vertical,
+  onSelect,
+}: {
+  vertical: Vertical;
+  onSelect: (v: Vertical) => void;
+}) {
+  const current = copy[vertical];
   return (
     <section className="relative overflow-hidden bg-ink-900 text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(18,107,255,0.18),transparent_55%)]" />
@@ -27,13 +60,28 @@ export function Hero() {
             Platform operasional untuk bisnis jasa
           </span>
           <h1 className="font-display mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-            Jalankan <span className="text-brand-400">barbershop</span> dan{' '}
-            <span className="text-cyan-400">car wash</span> Anda dari satu sistem
+            {current.title}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-ink-300 sm:text-lg">
-            Booking, antrian, kasir, pelanggan, staf, dan laporan — semuanya terhubung dalam satu
-            dashboard. Tidak perlu spreadsheet, POS terpisah, atau catatan manual.
-          </p>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-ink-300 sm:text-lg">{current.sub}</p>
+
+          <div className="mx-auto mt-8 grid max-w-md grid-cols-2 gap-3" role="group" aria-label="Pilih jenis bisnis">
+            <BusinessButton
+              active={vertical === 'barbershop'}
+              onClick={() => onSelect('barbershop')}
+              icon="scissors"
+              label="Barbershop"
+              activeClass="border-brand-400 bg-brand-500/15 text-brand-200 ring-2 ring-brand-400/60"
+              idleClass="border-white/15 bg-ink-800/60 text-ink-300 hover:border-white/30 hover:text-white"
+            />
+            <BusinessButton
+              active={vertical === 'car_wash'}
+              onClick={() => onSelect('car_wash')}
+              icon="car"
+              label="Car Wash"
+              activeClass="border-cyan-400 bg-cyan-500/15 text-cyan-200 ring-2 ring-cyan-400/60"
+              idleClass="border-white/15 bg-ink-800/60 text-ink-300 hover:border-white/30 hover:text-white"
+            />
+          </div>
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link to="/login" className="btn-primary btn-lg">
@@ -59,6 +107,36 @@ export function Hero() {
         <FloatingDashboard />
       </div>
     </section>
+  );
+}
+
+function BusinessButton({
+  active,
+  onClick,
+  icon,
+  label,
+  activeClass,
+  idleClass,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: string;
+  label: string;
+  activeClass: string;
+  idleClass: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex items-center justify-center gap-2.5 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900 ${
+        active ? activeClass : idleClass
+      }`}
+    >
+      <Icon name={icon} size={18} />
+      {label}
+    </button>
   );
 }
 
