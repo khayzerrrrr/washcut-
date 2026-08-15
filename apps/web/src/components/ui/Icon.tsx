@@ -12,6 +12,7 @@ const paths: Record<string, string> = {
   tag: 'M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7 7h.01',
   arrowLeft: 'M19 12H5m7 7-7-7 7-7',
   arrowRight: 'M5 12h14m-7-7 7 7-7 7',
+  upload: 'M12 16V4m0 0 4 4m-4-4-4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3',
   plus: 'M12 5v14m-7-7h14',
   building: 'M4 21h16M6 21V4h12v17M9 8h2m-2 4h2m-2 4h2m4-8h2m-2 4h2m-2 4h2',
   shield: 'M12 3 4 7v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V7l-8-4zm0 6v6m0 0 3-3',

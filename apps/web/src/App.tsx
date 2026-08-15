@@ -11,6 +11,7 @@ import { Customers } from './pages/Customers';
 import { Bookings } from './pages/Bookings';
 import { Checkout } from './pages/Checkout';
 import { TenantsAdmin } from './pages/TenantsAdmin';
+import { Settings } from './pages/Settings';
 import { AppLayout } from './components/layout/AppLayout';
 import { Skeleton } from './components/ui/Card';
 
@@ -35,7 +36,7 @@ function BusinessGate() {
         </div>
       </div>
     );
-  return <AppLayout business={business} />;
+  return <AppLayout business={business} onChange={setBusiness} />;
 }
 
 export function App() {
@@ -53,6 +54,7 @@ export function App() {
           <Route path="customers" element={<Customers />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

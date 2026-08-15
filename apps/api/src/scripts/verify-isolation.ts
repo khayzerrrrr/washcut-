@@ -81,6 +81,23 @@ async function main() {
   const adminRead = await fetch(`${base}/api/businesses/b2/services`, { headers: { Authorization: `Bearer ${admin}` } });
   check('super admin dapat mengakses tenant apa pun', adminRead.status === 200);
 
+  // 10. Isolasi: owner b1 tidak boleh mengganti logo tenant b2
+  const leakLogo = await fetch(`${base}/api/businesses/b2/logo`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${ownerB1}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ logo: 'data:image/png;base64,hack' }),
+  });
+  check('owner b1 mengganti logo b2 ditolak (403)', leakLogo.status === 403);
+
+  // 11. Owner b1 boleh mengganti logo tenant b1
+  const ownLogo = await fetch(`${base}/api/businesses/b1/logo`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${ownerB1}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ logo: 'data:image/png;base64,b1logo' }),
+  });
+  const ownLogoJson = (await ownLogo.json()) as { ok: boolean; data?: { logo?: string } };
+  check('owner b1 mengganti logo b1 diizinkan', ownLogo.status === 200 && ownLogoJson.ok && ownLogoJson.data?.logo === 'data:image/png;base64,b1logo');
+
   server.close();
 
   console.log(`\nHasil: ${passed} lulus, ${failed} gagal`);

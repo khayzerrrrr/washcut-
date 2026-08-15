@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import type { BusinessType } from '@washcut/shared';
 import { db, nextId } from '../../db.js';
-import { authenticate, requireSuperAdmin } from '../../auth/middleware.js';
+import { authenticate, requireSuperAdmin, requireTenantAccess } from '../../auth/middleware.js';
 
 const createTenantSchema = z.object({
   name: z.string().min(2),
@@ -48,6 +48,34 @@ export function registerTenantRoutes(router: Router) {
       return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'status tidak valid' } });
     }
     b.status = status;
+    b.updatedAt = new Date().toISOString();
+    res.json({ ok: true, data: b });
+  });
+
+  router.patch('/api/tenants/:id/logo', authenticate, requireSuperAdmin, (req, res) => {
+    const b = db.businesses.find((x) => x.id === req.params.id);
+    if (!b) return res.status(404).json({ ok: false, error: { code: 'NOT_FOUND', message: 'Tenant tidak ditemukan' } });
+    const logo = req.body.logo;
+    if (typeof logo !== 'string' || logo.length > 500_000) {
+      return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'logo tidak valid (string, maks 500KB)' } });
+    }
+    b.logo = logo;
+    b.updatedAt = new Date().toISOString();
+    res.json({ ok: true, data: b });
+  });
+
+  /**
+   * Update logo oleh anggota tenant itu sendiri (owner/staff).
+   * Isolasi: businessId dari token harus cocok dengan URL (requireTenantAccess).
+   */
+  router.patch('/api/businesses/:businessId/logo', authenticate, requireTenantAccess, (req, res) => {
+    const b = db.businesses.find((x) => x.id === req.user!.businessId);
+    if (!b) return res.status(404).json({ ok: false, error: { code: 'NOT_FOUND', message: 'Tenant tidak ditemukan' } });
+    const logo = req.body.logo;
+    if (typeof logo !== 'string' || logo.length > 500_000) {
+      return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'logo tidak valid (string, maks 500KB)' } });
+    }
+    b.logo = logo;
     b.updatedAt = new Date().toISOString();
     res.json({ ok: true, data: b });
   });

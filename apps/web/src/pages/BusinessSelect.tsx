@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import { Badge } from '../components/ui/Badge';
 import { Field, Modal } from '../components/ui/Modal';
 import { Icon } from '../components/ui/Icon';
+import { Logo } from '../components/ui/Logo';
 
 export function BusinessSelect() {
   const navigate = useNavigate();
@@ -52,9 +53,7 @@ export function BusinessSelect() {
               className="card p-6 text-left transition hover:border-brand-300 hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-lg font-black text-brand-600">
-                  {b.name.charAt(0)}
-                </span>
+                <Logo src={b.logo} sizeClass="h-11 w-auto" alt={b.name} />
                 <Badge tone={b.type === 'barbershop' ? 'brand' : 'blue'}>
                   {b.type === 'barbershop' ? 'Barbershop' : 'Car Wash'}
                 </Badge>

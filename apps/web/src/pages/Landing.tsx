@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { Icon } from '../components/ui/Icon';
+import { Logo } from '../components/ui/Logo';
 
 const Hero3D = lazy(() => import('../components/three/Hero3D').then((m) => ({ default: m.Hero3D })));
 
@@ -38,8 +39,7 @@ export function Landing() {
 
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-black">W</span>
-          <span className="text-lg font-bold">WashCut</span>
+          <Logo sizeClass="h-9 w-auto" alt="WashCut" />
         </div>
         <nav className="hidden items-center gap-6 text-sm text-ink-300 md:flex">
           <a href="#fitur" className="hover:text-white">Fitur</a>

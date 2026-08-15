@@ -21,6 +21,14 @@ export const api = {
     const b = mock.businesses.find((x) => x.id === id);
     return b ? ok(b) : fail('NOT_FOUND', 'Business tidak ditemukan');
   },
+  updateBusinessLogo: async (businessId: string, logo: string): Promise<ApiResponse<Business>> => {
+    await delay(80);
+    const b = mock.businesses.find((x) => x.id === businessId);
+    if (!b) return fail('NOT_FOUND', 'Business tidak ditemukan');
+    b.logo = logo;
+    b.updatedAt = new Date().toISOString();
+    return ok(b);
+  },
   createBusiness: async (input: { name: string; type: Business['type'] }): Promise<ApiResponse<Business>> => {
     await delay();
     const now = new Date().toISOString();

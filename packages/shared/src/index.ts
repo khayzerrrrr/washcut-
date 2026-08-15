@@ -20,6 +20,8 @@ export interface Business {
   slug: string;
   status: BusinessStatus;
   ownerId: string;
+  /** URL/data-URL logo tenant. Fallback ke logo platform (logo.png). */
+  logo?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import type { Business } from '@washcut/shared';
 import { Badge } from '../ui/Badge';
+import { Logo } from '../ui/Logo';
 
 const nav = [
   { to: 'dashboard', label: 'Dashboard', icon: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z' },
@@ -38,20 +39,30 @@ function NavItems({ business, onNavigate }: { business: Business; onNavigate?: (
   );
 }
 
-export function AppLayout({ business }: { business: Business }) {
+export function AppLayout({ business, onChange }: { business: Business; onChange?: (b: Business) => void }) {
   const navigate = useNavigate();
   return (
     <div className="flex min-h-screen">
       {/* Sidebar desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-ink-900 px-4 py-6 lg:flex">
         <button onClick={() => navigate('/')} className="mb-8 flex items-center gap-2 px-2 text-left">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-black text-white">W</span>
-          <span>
-            <span className="block font-bold text-white">WashCut</span>
-            <span className="block text-[11px] text-ink-400">{business.name}</span>
-          </span>
+          <Logo src={business.logo} sizeClass="h-9 w-auto" alt={business.name} />
+          <span className="sr-only">{business.name}</span>
         </button>
         <NavItems business={business} />
+        <NavLink
+          to={`/app/${business.id}/settings`}
+          className={({ isActive }) =>
+            `mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              isActive ? 'bg-brand-600/90 text-white shadow' : 'text-ink-300 hover:bg-ink-800 hover:text-white'
+            }`
+          }
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7.4-3a7.5 7.5 0 0 0-.1-1.2l2.1-1.6-2-3.5-2.5 1a7.7 7.7 0 0 0-2-1.2L14.5 3h-4l-.4 2.5a7.7 7.7 0 0 0-2 1.2l-2.5-1-2 3.5 2.1 1.6a7.5 7.5 0 0 0 0 2.4L3.6 14.8l2 3.5 2.5-1a7.7 7.7 0 0 0 2 1.2l.4 2.5h4l.4-2.5a7.7 7.7 0 0 0 2-1.2l2.5 1 2-3.5-2.1-1.6c.1-.4.1-.8.1-1.2z" />
+          </svg>
+          Pengaturan
+        </NavLink>
         <div className="mt-auto rounded-xl bg-ink-800 p-3">
           <p className="text-[11px] text-ink-400">Bisnis aktif</p>
           <p className="mt-0.5 flex items-center justify-between text-sm font-semibold text-white">
@@ -65,14 +76,14 @@ export function AppLayout({ business }: { business: Business }) {
         {/* Topbar mobile */}
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-ink-200 bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
           <button onClick={() => navigate('/')} className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 font-black text-white">W</span>
-            <span className="font-bold text-ink-900">WashCut</span>
+            <Logo src={business.logo} sizeClass="h-8 w-auto" alt={business.name} />
+            <span className="sr-only">{business.name}</span>
           </button>
           <TypeBadge type={business.type} />
         </header>
 
         <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-24 sm:px-6 lg:py-8 lg:pb-8">
-          <Outlet context={{ business }} />
+          <Outlet context={{ business, updateBusiness: onChange }} />
         </main>
       </div>
 

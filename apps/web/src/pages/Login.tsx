@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Logo } from '../components/ui/Logo';
 
 export function Login() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export function Login() {
     <div className="flex min-h-screen items-center justify-center bg-ink-900 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-2xl font-black text-white">W</span>
+          <Logo sizeClass="h-14 w-auto" alt="WashCut" />
           <h1 className="font-display mt-4 text-2xl font-bold text-white">Masuk ke WashCut</h1>
           <p className="mt-1 text-sm text-ink-400">Kelola barbershop & car wash Anda</p>
         </div>

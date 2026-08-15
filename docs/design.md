@@ -100,6 +100,15 @@
 - Ikon di samping teks yang sudah deskriptif → `aria-hidden="true"`.
 - Tombol ikon-only → wajib `aria-label` + target ≥ 44px.
 
+## 6a. Logo
+
+- **Sumber kebenaran:** file `apps/web/public/logo.png` (logo platform WashCut, PNG transparan). Semua tempat brand memakai komponen `<Logo>` dari `components/ui/Logo.tsx`.
+- **Tampilan: tanpa teks nama.** Logo ditampilkan sebagai gambar saja (hanya `alt` untuk aksesibilitas), tidak menempel teks "WashCut"/nama tenant di sampingnya.
+- **Fallback:** `<Logo src={business.logo}>` — jika tenant tidak punya logo, otomatis memakai logo platform.
+- **Logo tenant:** dikelola di halaman **Pengaturan** (`/app/:businessId/settings`) oleh owner/staff tenant. Upload PNG transparan, maks 500KB; disimpan sebagai data-URL di field `Business.logo`.
+- **Isolasi:** hanya anggota tenant tsb (token) yang boleh mengganti logo tenantnya — dijamin `requireTenantAccess` (403 jika URL ≠ token).
+- **Aturan tampilan:** `object-contain`, tinggi 8–14 (header), tidak pernah memaksa latar; jangan resize logo saat hover.
+
 ## 7. Interaksi & Feedback
 
 - Hover: transisi 150–300ms, `cursor-pointer` di semua elemen klik.
@@ -118,6 +127,7 @@
 ## 9. Checklist Sebelum Kirim UI
 
 - [ ] Tidak ada emoji sebagai ikon (semua SVG)
+- [ ] Logo memakai komponen `<Logo>`; tidak ada teks nama menempel di samping logo
 - [ ] Ikon satu gaya (outline) & `aria-hidden` untuk dekoratif
 - [ ] `cursor-pointer` + hover state (150–300ms) di semua klik
 - [ ] Kontras teks ≥ 4.5:1 (light); status tidak hanya lewat warna
