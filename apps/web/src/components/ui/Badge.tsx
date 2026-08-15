@@ -2,12 +2,12 @@ import type { ReactNode } from 'react';
 
 export function Badge({ tone, children }: { tone: 'green' | 'amber' | 'brand' | 'gray' | 'red' | 'blue'; children: ReactNode }) {
   const tones: Record<string, string> = {
-    green: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-200',
+    green: 'bg-success-50 text-success-700 ring-success-100',
+    amber: 'bg-warn-50 text-warn-700 ring-warn-100',
     brand: 'bg-brand-50 text-brand-700 ring-brand-200',
     gray: 'bg-ink-100 text-ink-600 ring-ink-200',
-    red: 'bg-rose-50 text-rose-700 ring-rose-200',
-    blue: 'bg-sky-50 text-sky-700 ring-sky-200',
+    red: 'bg-danger-50 text-danger-700 ring-danger-100',
+    blue: 'bg-info-50 text-info-700 ring-info-100',
   };
   return <span className={`badge ring-1 ring-inset ${tones[tone]}`}>{children}</span>;
 }

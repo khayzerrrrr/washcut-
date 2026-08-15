@@ -7,10 +7,12 @@ import { Badge } from '../components/ui/Badge';
 import { Field, Modal } from '../components/ui/Modal';
 import { Icon } from '../components/ui/Icon';
 import { Logo } from '../components/ui/Logo';
+import { Card, EmptyState, Skeleton } from '../components/ui/Card';
 
 export function BusinessSelect() {
   const navigate = useNavigate();
   const [list, setList] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [type, setType] = useState<Business['type']>('barbershop');
@@ -19,6 +21,7 @@ export function BusinessSelect() {
   useEffect(() => {
     api.listBusinesses().then((r) => {
       if (r.ok) setList(r.data);
+      setLoading(false);
     });
   }, []);
 
@@ -46,7 +49,17 @@ export function BusinessSelect() {
         <p className="mt-1 text-sm text-ink-500">Anda memiliki {list.length} bisnis. Pilih untuk masuk ke dashboard.</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {list.map((b) => (
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="p-6">
+                  <Skeleton className="h-11 w-11" />
+                  <Skeleton className="mt-4 h-5 w-2/3" />
+                  <Skeleton className="mt-2 h-3 w-1/3" />
+                </Card>
+              ))
+            : list.length === 0
+              ? <Card className="p-0"><EmptyState title="Belum ada bisnis" hint="Buat bisnis pertama Anda untuk mulai." /></Card>
+              : list.map((b) => (
             <button
               key={b.id}
               onClick={() => navigate(`/app/${b.id}/dashboard`)}
@@ -61,7 +74,7 @@ export function BusinessSelect() {
               <p className="mt-4 font-bold text-ink-900">{b.name}</p>
               <p className="text-xs text-ink-400">/{b.slug}</p>
               <div className="mt-3 flex items-center gap-2">
-                <Badge tone={b.status === 'active' ? 'green' : 'amber'}>{b.status}</Badge>
+                <Badge tone={b.status === 'active' ? 'green' : 'amber'}>{b.status === 'active' ? 'Aktif' : 'Trial'}</Badge>
                 <span className="text-xs text-ink-400">Buka dashboard →</span>
               </div>
             </button>
@@ -71,7 +84,7 @@ export function BusinessSelect() {
             onClick={() => setOpen(true)}
             className="flex min-h-[150px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-300 text-ink-400 transition hover:border-brand-400 hover:text-brand-600"
           >
-            <span className="text-3xl">+</span>
+            <Icon name="plus" size={28} />
             <span className="mt-1 text-sm font-semibold">Buat Bisnis Baru</span>
           </button>
         </div>
@@ -99,7 +112,7 @@ export function BusinessSelect() {
             </div>
           </Field>
           <button type="submit" className="btn-primary w-full" disabled={busy}>
-            {busy ? 'Membuat...' : 'Buat & Masuk'}
+            {busy ? <><span className="btn-spinner" /> Membuat...</> : 'Buat & Masuk'}
           </button>
         </form>
       </Modal>

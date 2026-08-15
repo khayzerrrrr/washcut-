@@ -10,25 +10,25 @@ const features = [
     title: 'Multi-tenant & aman',
     desc: 'Setiap bisnis adalah tenant terpisah. Data pelanggan, layanan, dan transaksi terisolasi penuh antar tenant.',
     icon: 'shield' as const,
-    tone: 'text-brand-400 bg-brand-500/10',
+    tone: 'text-brand-400 bg-brand-500/10 ring-brand-500/30',
   },
   {
     title: 'Dua vertikal, satu sistem',
     desc: 'Barbershop dan car wash berbagi core yang sama. Modul yang tidak relevan otomatis disembunyikan.',
     icon: 'building' as const,
-    tone: 'text-sky-400 bg-sky-500/10',
+    tone: 'text-info-400 bg-info-500/10 ring-info-500/30',
   },
   {
     title: 'Kasir & pembayaran',
     desc: 'Checkout cepat dengan QRIS, tunai, atau transfer. Riwayat transaksi tersimpan rapi.',
     icon: 'wallet' as const,
-    tone: 'text-emerald-400 bg-emerald-500/10',
+    tone: 'text-success-400 bg-success-500/10 ring-success-500/30',
   },
   {
     title: 'Jadwal & antrian',
     desc: 'Booking janji temu per karyawan, status proses, dan notifikasi reminder ke pelanggan.',
     icon: 'calendar' as const,
-    tone: 'text-amber-400 bg-amber-500/10',
+    tone: 'text-warn-400 bg-warn-500/10 ring-warn-500/30',
   },
 ];
 
@@ -42,10 +42,10 @@ export function Landing() {
           <Logo sizeClass="h-9 w-auto" alt="WashCut" />
         </div>
         <nav className="hidden items-center gap-6 text-sm text-ink-300 md:flex">
-          <a href="#fitur" className="hover:text-white">Fitur</a>
-          <a href="#platform" className="hover:text-white">Platform</a>
+          <a href="#fitur" className="hover:text-white transition-colors">Fitur</a>
+          <a href="#platform" className="hover:text-white transition-colors">Platform</a>
         </nav>
-        <Link to="/login" className="btn-outline !border-ink-600 !text-white hover:!bg-ink-800">Masuk</Link>
+        <Link to="/login" className="btn-outline-dark">Masuk</Link>
       </header>
 
       <section className="relative mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
@@ -57,14 +57,14 @@ export function Landing() {
         </span>
         <h1 className="font-display mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
           Satu dashboard untuk <span className="text-brand-400">barbershop</span> dan{' '}
-          <span className="text-sky-400">car wash</span>
+          <span className="text-info-400">car wash</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-base text-ink-300 sm:text-lg">
           Booking, pelanggan, kasir, dan laporan dalam satu aplikasi. Berjalan di browser, Android, iPhone, dan Windows.
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link to="/login" className="btn-primary !px-6 !py-3 !text-base">Mulai Sekarang</Link>
-          <a href="#fitur" className="btn-outline !border-ink-600 !text-white hover:!bg-ink-800 !px-6 !py-3 !text-base">Lihat Fitur</a>
+          <Link to="/login" className="btn-primary btn-lg">Mulai Sekarang</Link>
+          <a href="#fitur" className="btn-outline-dark btn-lg">Lihat Fitur</a>
         </div>
 
         <div className="mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-6 border-t border-ink-800 pt-8 sm:grid-cols-4">
@@ -79,15 +79,15 @@ export function Landing() {
 
       <section id="fitur" className="relative mx-auto max-w-6xl px-6 py-12">
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-ink-700 bg-gradient-to-br from-ink-800 to-ink-900 p-8">
+          <div className="card-dark p-8">
             <span className="badge ring-1 ring-inset ring-brand-500/40 bg-brand-500/10 text-brand-300">
               <Icon name="scissors" size={13} /> Barbershop
             </span>
             <h2 className="mt-4 text-2xl font-bold">Untuk barbershop</h2>
             <p className="mt-2 text-sm text-ink-400">Janji temu, profil rambut pelanggan, dan paket grooming.</p>
           </div>
-          <div className="rounded-3xl border border-ink-700 bg-gradient-to-br from-ink-800 to-ink-900 p-8">
-            <span className="badge ring-1 ring-inset ring-sky-500/40 bg-sky-500/10 text-sky-300">
+          <div className="card-dark p-8">
+            <span className="badge ring-1 ring-inset ring-info-500/40 bg-info-500/10 text-info-300">
               <Icon name="car" size={13} /> Car Wash
             </span>
             <h2 className="mt-4 text-2xl font-bold">Untuk car wash</h2>
@@ -97,8 +97,8 @@ export function Landing() {
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
-            <div key={f.title} className="rounded-2xl border border-ink-700 bg-ink-800/50 p-6">
-              <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${f.tone}`}>
+            <div key={f.title} className="card-dark p-6">
+              <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-inset ${f.tone}`}>
                 <Icon name={f.icon} size={20} />
               </span>
               <h3 className="font-display mt-4 font-bold">{f.title}</h3>
@@ -115,7 +115,7 @@ export function Landing() {
             ['Sinta, Owner AquaShine', 'Dari check-in kendaraan sampai kasir semua satu aplikasi. Data pelanggan aman.', 'AquaShine Car Wash'],
             ['Denny, Staff', 'Ganti shift tidak perlu catat manual lagi. Status pesanan langsung jelas.', 'Kings Barber & Co'],
           ].map(([name, quote, role]) => (
-            <figure key={name} className="rounded-2xl border border-ink-700 bg-ink-800/50 p-6">
+            <figure key={name} className="card-dark p-6">
               <p className="text-sm text-ink-300">"{quote}"</p>
               <figcaption className="mt-4">
                 <p className="font-semibold text-white">{name}</p>
@@ -127,7 +127,7 @@ export function Landing() {
       </section>
 
       <section id="platform" className="relative mx-auto max-w-6xl px-6 py-12">
-        <div className="rounded-3xl border border-ink-700 bg-ink-800/40 p-8 sm:p-12">
+        <div className="card-dark p-8 sm:p-12">
           <h2 className="font-display text-center text-2xl font-bold sm:text-3xl">Satu kode, banyak perangkat</h2>
           <div className="mt-8 grid gap-4 text-center sm:grid-cols-3">
             {[
@@ -135,7 +135,7 @@ export function Landing() {
               ['Android', 'App native via Capacitor', 'qr'],
               ['Windows', 'Aplikasi .exe via Tauri', 'building'],
             ].map(([t, d, icon]) => (
-              <div key={t} className="rounded-2xl border border-ink-700 bg-ink-900/60 p-6">
+              <div key={t} className="card-dark p-6">
                 <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">
                   <Icon name={icon!} size={20} />
                 </span>

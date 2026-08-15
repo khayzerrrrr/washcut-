@@ -94,9 +94,13 @@ export function Settings() {
             onClick={save}
             disabled={busy || preview === business.logo}
           >
-            {busy ? 'Menyimpan...' : 'Simpan Logo'}
+            {busy ? <><span className="btn-spinner" /> Menyimpan...</> : 'Simpan Logo'}
           </button>
-          {saved && <p className="mt-2 text-sm font-medium text-emerald-600">Logo berhasil disimpan.</p>}
+          {saved && (
+            <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-success-600">
+              <Icon name="check" size={15} /> Logo berhasil disimpan.
+            </p>
+          )}
         </Card>
 
         <Card className="p-6">

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import type { Booking, Business, ServiceItem } from '@washcut/shared';
 import { api, formatRupiah, formatTime } from '../lib/api';
-import { Card, PageHeader, Skeleton, StatCard } from '../components/ui/Card';
+import { Card, EmptyState, PageHeader, Skeleton, StatCard } from '../components/ui/Card';
 import { Badge, statusLabel, statusTone } from '../components/ui/Badge';
 
 export function Dashboard() {
@@ -29,7 +29,7 @@ export function Dashboard() {
     <>
       <PageHeader
         title={`Halo, Owner`}
-        subtitle={`Ringkasan ${business.name} hari ini`}
+        subtitle={`${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -58,7 +58,9 @@ export function Dashboard() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
             </div>
           ) : upcoming.length === 0 ? (
-            <p className="px-5 pb-6 text-sm text-ink-400">Belum ada jadwal hari ini.</p>
+            <div className="px-5 pb-6">
+              <EmptyState title="Belum ada jadwal" hint="Booking baru akan muncul di sini." />
+            </div>
           ) : (
             <ul className="divide-y divide-ink-100">
               {upcoming.slice(0, 5).map((b) => (

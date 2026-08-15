@@ -20,9 +20,9 @@ export function StatCard({ label, value, hint, tone = 'default' }: { label: stri
   const tones: Record<string, string> = {
     default: 'text-ink-900',
     brand: 'text-brand-600',
-    green: 'text-emerald-600',
-    amber: 'text-amber-600',
-    red: 'text-rose-600',
+    green: 'text-success-600',
+    amber: 'text-warn-600',
+    red: 'text-danger-600',
   };
   return (
     <Card className="p-5">

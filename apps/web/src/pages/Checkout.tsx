@@ -46,7 +46,7 @@ export function Checkout() {
 
       {done ? (
         <Card className="mx-auto max-w-md p-10 text-center">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success-50 text-success-600">
             <Icon name="check" size={32} />
           </span>
           <h2 className="font-display mt-4 text-xl font-bold text-ink-900">Transaksi Berhasil</h2>
@@ -124,7 +124,7 @@ export function Checkout() {
               </div>
             </div>
 
-            <button className="btn-primary mt-5 w-full !py-3.5 !text-base" disabled={!selectedService} onClick={checkout}>
+            <button className="btn-primary btn-lg mt-5 w-full" disabled={!selectedService} onClick={checkout}>
               Bayar {selectedService ? formatRupiah(selectedService.price) : ''}
             </button>
             <p className="mt-3 text-center text-xs text-ink-400">

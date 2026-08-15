@@ -31,7 +31,7 @@ export function Bookings() {
 
   return (
     <>
-      <PageHeader title="Bookings" subtitle={`Jadwal ${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`} />
+      <PageHeader title="Pesanan" subtitle={`Jadwal ${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`} />
 
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -79,13 +79,13 @@ export function Bookings() {
                   <span className="font-bold text-ink-900">{formatRupiah(b.amount)}</span>
                   <div className="flex gap-2">
                     {b.status === 'pending' && (
-                      <button className="btn-primary !py-1.5 !px-3 !text-xs" onClick={() => setStatus(b.id, 'confirmed')}>Konfirmasi</button>
+                      <button className="btn-primary btn-sm" onClick={() => setStatus(b.id, 'confirmed')}>Konfirmasi</button>
                     )}
                     {b.status === 'confirmed' && (
-                      <button className="btn-primary !py-1.5 !px-3 !text-xs" onClick={() => setStatus(b.id, 'completed')}>Selesai</button>
+                      <button className="btn-primary btn-sm" onClick={() => setStatus(b.id, 'completed')}>Selesai</button>
                     )}
                     {(b.status === 'pending' || b.status === 'confirmed') && (
-                      <button className="btn-outline !py-1.5 !px-3 !text-xs" onClick={() => setStatus(b.id, 'cancelled')}>Batal</button>
+                      <button className="btn-outline btn-sm" onClick={() => setStatus(b.id, 'cancelled')}>Batal</button>
                     )}
                   </div>
                 </div>

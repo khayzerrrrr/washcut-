@@ -122,11 +122,12 @@ export function Customers() {
 
               {!isWash && (
                 <>
-                  <h3 className="mt-6 text-xs font-bold text-ink-500 uppercase tracking-wide">Profil Rambut</h3>
-                  <div className="mt-2 rounded-xl bg-ink-50 p-3 text-sm text-ink-600">
-                    <p className="mb-1"><span className="font-semibold">Tipe:</span> Lurus</p>
-                    <p><span className="font-semibold">Catatan:</span> Suka model taper fade, bagian atas dibiarkan panjang.</p>
-                  </div>
+                  <h3 className="mt-6 text-xs font-bold text-ink-500 uppercase tracking-wide">Catatan</h3>
+                  {selected.notes ? (
+                    <p className="mt-2 rounded-xl bg-ink-50 p-3 text-sm text-ink-600">{selected.notes}</p>
+                  ) : (
+                    <p className="mt-2 text-sm text-ink-400">Belum ada catatan untuk pelanggan ini.</p>
+                  )}
                 </>
               )}
               <Badge tone="brand" >{selected.id.slice(0, 1).toUpperCase()} · member</Badge>

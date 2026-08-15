@@ -90,7 +90,7 @@ export function TenantsAdmin() {
                     <td className="td text-right">
                       <button
                         onClick={() => toggleStatus(t.id, t.status)}
-                        className={`text-xs font-semibold ${t.status === 'suspended' ? 'text-emerald-600 hover:underline' : 'text-rose-600 hover:underline'}`}
+                        className={`text-xs font-semibold ${t.status === 'suspended' ? 'text-success-600 hover:underline' : 'text-danger-600 hover:underline'}`}
                       >
                         {t.status === 'suspended' ? 'Aktifkan' : 'Suspend'}
                       </button>
@@ -130,7 +130,7 @@ export function TenantsAdmin() {
             </div>
           </Field>
           <button type="submit" className="btn-primary w-full" disabled={busy}>
-            {busy ? 'Membuat...' : 'Buat Tenant'}
+            {busy ? <><span className="btn-spinner" /> Membuat...</> : 'Buat Tenant'}
           </button>
         </form>
       </Modal>
