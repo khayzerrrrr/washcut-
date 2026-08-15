@@ -1,52 +1,44 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { Business } from '@washcut/shared';
 import { api } from '../lib/api';
+import { clearSession, getUser } from '../lib/auth';
 import { Badge } from '../components/ui/Badge';
-import { Field, Modal } from '../components/ui/Modal';
 import { Icon } from '../components/ui/Icon';
 import { Logo } from '../components/ui/Logo';
 import { Card, EmptyState, Skeleton } from '../components/ui/Card';
 
 export function BusinessSelect() {
   const navigate = useNavigate();
+  const user = getUser();
   const [list, setList] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [type, setType] = useState<Business['type']>('barbershop');
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api.listBusinesses().then((r) => {
+    api.listMyBusinesses().then((r) => {
       if (r.ok) setList(r.data);
       setLoading(false);
     });
   }, []);
 
-  const create = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setBusy(true);
-    const r = await api.createBusiness({ name, type });
-    setBusy(false);
-    if (r.ok) {
-      setOpen(false);
-      setName('');
-      navigate(`/app/${r.data.id}/dashboard`);
-    }
+  const logout = () => {
+    clearSession();
+    navigate('/login');
   };
 
   return (
     <div className="min-h-screen bg-ink-50 px-4 py-10">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 flex items-center justify-between">
-          <Link to="/" className="text-sm font-semibold text-ink-500 hover:text-ink-800">← Beranda</Link>
           <span className="badge ring-1 ring-inset ring-brand-200 bg-brand-50 text-brand-700">Owner</span>
+          <button onClick={logout} className="flex items-center gap-1.5 text-sm font-semibold text-ink-500 hover:text-danger-600">
+            <Icon name="logout" size={15} /> Keluar
+          </button>
         </div>
         <h1 className="font-display text-2xl font-bold text-ink-900">Pilih Bisnis</h1>
-        <p className="mt-1 text-sm text-ink-500">Anda memiliki {list.length} bisnis. Pilih untuk masuk ke dashboard.</p>
+        <p className="mt-1 text-sm text-ink-500">
+          {user?.name ? `Halo ${user.name}, ` : ''}Anda memiliki {list.length} bisnis. Pilih untuk masuk ke dashboard.
+        </p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {loading
@@ -58,7 +50,7 @@ export function BusinessSelect() {
                 </Card>
               ))
             : list.length === 0
-              ? <Card className="p-0"><EmptyState title="Belum ada bisnis" hint="Buat bisnis pertama Anda untuk mulai." /></Card>
+              ? <div className="sm:col-span-2"><Card className="p-0"><EmptyState title="Belum ada bisnis" hint="Hubungi administrator untuk membuat tenant." /></Card></div>
               : list.map((b) => (
             <button
               key={b.id}
@@ -72,50 +64,15 @@ export function BusinessSelect() {
                 </Badge>
               </div>
               <p className="mt-4 font-bold text-ink-900">{b.name}</p>
-              <p className="text-xs text-ink-400">/{b.slug}</p>
+              <p className="text-xs text-ink-500">/{b.slug}</p>
               <div className="mt-3 flex items-center gap-2">
                 <Badge tone={b.status === 'active' ? 'green' : 'amber'}>{b.status === 'active' ? 'Aktif' : 'Trial'}</Badge>
-                <span className="text-xs text-ink-400">Buka dashboard →</span>
+                <span className="text-xs text-ink-500">Buka dashboard →</span>
               </div>
             </button>
           ))}
-
-          <button
-            onClick={() => setOpen(true)}
-            className="flex min-h-[150px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-300 text-ink-400 transition hover:border-brand-400 hover:text-brand-600"
-          >
-            <Icon name="plus" size={28} />
-            <span className="mt-1 text-sm font-semibold">Buat Bisnis Baru</span>
-          </button>
         </div>
       </div>
-
-      <Modal open={open} onClose={() => setOpen(false)} title="Buat Bisnis Baru">
-        <form onSubmit={create} className="space-y-4">
-          <Field label="Nama Bisnis">
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="cth: Urban Cuts" />
-          </Field>
-          <Field label="Jenis Bisnis">
-            <div className="grid grid-cols-2 gap-2">
-              {(['barbershop', 'car_wash'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                    type === t ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-ink-300 text-ink-600 hover:bg-ink-50'
-                  }`}
-                >
-                  {t === 'barbershop' ? <><Icon name="scissors" size={16} /> Barbershop</> : <><Icon name="car" size={16} /> Car Wash</>}
-                </button>
-              ))}
-            </div>
-          </Field>
-          <button type="submit" className="btn-primary w-full" disabled={busy}>
-            {busy ? <><span className="btn-spinner" /> Membuat...</> : 'Buat & Masuk'}
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 }

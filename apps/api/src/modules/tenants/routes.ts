@@ -3,11 +3,14 @@ import { z } from 'zod';
 import type { BusinessType } from '@washcut/shared';
 import { db, nextId } from '../../db.js';
 import { authenticate, requireSuperAdmin, requireTenantAccess } from '../../auth/middleware.js';
+import { hashPassword } from '../../auth/password.js';
 
 const createTenantSchema = z.object({
   name: z.string().min(2),
   type: z.enum(['barbershop', 'car_wash'] as const satisfies readonly BusinessType[]),
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'slug hanya huruf kecil, angka, dan dash'),
+  ownerEmail: z.string().email().optional(),
+  ownerPassword: z.string().min(6).optional(),
 });
 
 /**
@@ -28,11 +31,32 @@ export function registerTenantRoutes(router: Router) {
       return res.status(409).json({ ok: false, error: { code: 'DUPLICATE_SLUG', message: 'Slug sudah dipakai' } });
     }
     const now = new Date().toISOString();
+    const { ownerEmail, ownerPassword, ...rest } = parsed.data;
+    let ownerId = req.user!.sub;
+    if (ownerEmail) {
+      if (!ownerPassword) {
+        return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'ownerPassword wajib diisi bersama ownerEmail' } });
+      }
+      if (db.users.some((u) => u.email === ownerEmail)) {
+        return res.status(409).json({ ok: false, error: { code: 'DUPLICATE_EMAIL', message: 'Email owner sudah dipakai' } });
+      }
+      const { passwordHash, salt } = hashPassword(ownerPassword);
+      const owner = {
+        id: nextId('users'),
+        role: 'owner' as const,
+        name: ownerEmail.split('@')[0],
+        email: ownerEmail,
+        passwordHash,
+        salt,
+      };
+      db.users.push(owner);
+      ownerId = owner.id;
+    }
     const business = {
       id: nextId('businesses'),
-      ...parsed.data,
+      ...rest,
       status: 'trial' as const,
-      ownerId: req.user!.sub,
+      ownerId,
       createdAt: now,
       updatedAt: now,
     };

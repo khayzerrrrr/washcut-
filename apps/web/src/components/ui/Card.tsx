@@ -28,7 +28,7 @@ export function StatCard({ label, value, hint, tone = 'default' }: { label: stri
     <Card className="p-5">
       <p className="text-xs font-semibold text-ink-500 uppercase tracking-wide">{label}</p>
       <p className={`font-display mt-2 text-2xl font-bold ${tones[tone]}`}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-ink-400">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-ink-500">{hint}</p>}
     </Card>
   );
 }
@@ -37,7 +37,7 @@ export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ink-300 py-14 text-center">
       <p className="font-semibold text-ink-600">{title}</p>
-      {hint && <p className="mt-1 text-sm text-ink-400">{hint}</p>}
+      {hint && <p className="mt-1 text-sm text-ink-500">{hint}</p>}
     </div>
   );
 }

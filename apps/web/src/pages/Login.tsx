@@ -1,28 +1,36 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { Icon } from '../components/ui/Icon';
+import { login } from '../lib/auth';
 
 export function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('owner@washcut.id');
-  const [password, setPassword] = useState('demo1234');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const submit = (role: 'owner' | 'super_admin') => {
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
     setError('');
     setBusy(true);
-    setTimeout(() => {
+    try {
+      const r = await login(email, password);
+      if (r.ok) {
+        navigate(r.data.user.role === 'super_admin' ? '/tenants' : '/business');
+      }
+    } catch (err) {
+      setError((err as { error?: { message?: string } })?.error?.message ?? 'Tidak dapat terhubung ke server');
       setBusy(false);
-      navigate(role === 'super_admin' ? '/tenants' : '/business');
-    }, 400);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-ink-900 px-4">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(220,38,38,0.12),transparent_60%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(18,107,255,0.12),transparent_60%)]" />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center">
           <Logo sizeClass="h-14 w-auto" alt="WashCut" />
@@ -30,15 +38,15 @@ export function Login() {
           <p className="mt-1 text-sm text-ink-400">Kelola barbershop & car wash Anda</p>
         </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); submit('owner'); }} className="card-dark p-6">
+        <form onSubmit={submit} className="card-dark p-6">
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-xl border border-danger-500/40 bg-danger-500/10 px-3 py-2 text-sm text-danger-300">
-              <Icon name="check" size={15} className="rotate-45" />
+              <Icon name="alert" size={15} />
               {error}
             </div>
           )}
           <label className="label-dark">Email</label>
-          <input className="input-dark" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="input-dark" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus />
           <label className="label-dark mt-4">Password</label>
           <div className="relative">
             <input
@@ -57,17 +65,11 @@ export function Login() {
             </button>
           </div>
           <button type="submit" className="btn-primary mt-6 w-full" disabled={busy}>
-            {busy ? <><span className="btn-spinner" /> Memproses...</> : 'Masuk sebagai Owner'}
+            {busy ? <><span className="btn-spinner" /> Memproses...</> : 'Masuk'}
           </button>
-          <button
-            type="button"
-            onClick={() => submit('super_admin')}
-            className="btn-outline-dark mt-3 w-full"
-            disabled={busy}
-          >
-            {busy ? <><span className="btn-spinner" /> Memproses...</> : 'Masuk sebagai Super Admin'}
-          </button>
-          <p className="mt-4 text-center text-xs text-ink-500">Demo: klik tombol untuk masuk.</p>
+          <p className="mt-4 text-center text-xs text-ink-500">
+            Demo: admin@washcut.id / admin1234 · owner@kings.id / demo1234
+          </p>
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">

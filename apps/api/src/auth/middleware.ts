@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import type { Role } from '@washcut/shared';
 import { verifyToken, type TokenPayload } from './token.js';
 
 declare module 'express-serve-static-core' {
@@ -27,6 +28,16 @@ export function requireSuperAdmin(req: Request, res: Response, next: NextFunctio
     return res.status(403).json({ ok: false, error: { code: 'FORBIDDEN', message: 'Super admin only' } });
   }
   next();
+}
+
+/** Pastikan role user ada di daftar yang diizinkan, selain itu 403. */
+export function requireRole(...roles: Role[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ ok: false, error: { code: 'FORBIDDEN', message: 'Tidak memiliki izin' } });
+    }
+    next();
+  };
 }
 
 /**

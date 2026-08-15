@@ -16,11 +16,11 @@ function check(name: string, cond: boolean) {
   }
 }
 
-async function login(email: string) {
+async function login(email: string, password: string) {
   const r = await fetch(`${base}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password: 'demo1234' }),
+    body: JSON.stringify({ email, password }),
   });
   const j = (await r.json()) as { ok: boolean; data?: { accessToken: string } };
   if (!j.ok || !j.data) throw new Error(`login gagal untuk ${email}`);
@@ -30,10 +30,10 @@ async function login(email: string) {
 async function main() {
   const server = createApp().listen(PORT);
 
-  const admin = await login('admin@washcut.id');
-  const ownerB1 = await login('owner@kings.id');
-  const ownerB2 = await login('owner@aquashine.id');
-  const staffB1 = await login('staff@kings.id');
+  const admin = await login('admin@washcut.id', 'admin1234');
+  const ownerB1 = await login('owner@kings.id', 'demo1234');
+  const ownerB2 = await login('owner@aquashine.id', 'demo1234');
+  const staffB1 = await login('staff@kings.id', 'demo1234');
 
   // 1. Super admin bisa lihat daftar tenant
   const tenants = await fetch(`${base}/api/tenants`, { headers: { Authorization: `Bearer ${admin}` } });

@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import type { Role } from '@washcut/shared';
+import type { Role, StaffPosition } from '@washcut/shared';
 
 export interface TokenPayload {
   sub: string;
@@ -7,6 +7,7 @@ export interface TokenPayload {
   businessId?: string;
   name: string;
   email: string;
+  position?: StaffPosition;
   iat: number;
   exp: number;
 }

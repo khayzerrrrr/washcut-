@@ -9,9 +9,33 @@ const checkoutSchema = z.object({
   amount: z.number().positive(),
 });
 
+const standalonePaymentSchema = z.object({
+  amount: z.number().positive(),
+  method: z.enum(['cash', 'qris', 'transfer', 'card']),
+  note: z.string().optional(),
+});
+
 export function registerCheckoutRoutes(router: Router) {
   router.get('/api/businesses/:businessId/payments', authenticate, requireTenantAccess, (req, res) => {
     res.json({ ok: true, data: scoped(db.payments, req.user!.businessId!) });
+  });
+
+  router.post('/api/businesses/:businessId/payments', authenticate, requireTenantAccess, (req, res) => {
+    const tenantId = req.user!.businessId!;
+    const parsed = standalonePaymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: parsed.error.message } });
+    }
+    const payment = {
+      id: nextId('payments'),
+      businessId: tenantId,
+      amount: parsed.data.amount,
+      method: parsed.data.method,
+      status: 'paid' as const,
+      paidAt: new Date().toISOString(),
+    };
+    db.payments.push(payment);
+    res.status(201).json({ ok: true, data: payment });
   });
 
   router.post('/api/businesses/:businessId/checkout', authenticate, requireTenantAccess, (req, res) => {

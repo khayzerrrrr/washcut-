@@ -1,39 +1,71 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import type { Business } from '@washcut/shared';
 import { api } from '../lib/api';
+import { clearSession, getUser } from '../lib/auth';
 import { Badge, statusLabel, statusTone } from '../components/ui/Badge';
-import { Card, PageHeader } from '../components/ui/Card';
+import { Card, PageHeader, Skeleton, TableSkeleton } from '../components/ui/Card';
 import { Field, Modal } from '../components/ui/Modal';
 import { Icon } from '../components/ui/Icon';
 
 export function TenantsAdmin() {
+  const navigate = useNavigate();
+  const user = getUser();
   const [tenants, setTenants] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [type, setType] = useState<Business['type']>('barbershop');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerPassword, setOwnerPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.listBusinesses().then((r) => r.ok && setTenants(r.data));
+    api.listBusinesses().then((r) => {
+      if (r.ok) setTenants(r.data);
+      setLoading(false);
+    });
   }, []);
+
+  if (!user || user.role !== 'super_admin') return <Navigate to="/business" replace />;
+
+  const logout = () => {
+    clearSession();
+    navigate('/login');
+  };
 
   const create = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    setError('');
     setBusy(true);
-    const r = await api.createBusiness({ name, type });
-    setBusy(false);
-    if (r.ok) {
-      setTenants((p) => [...p, r.data]);
-      setOpen(false);
-      setName('');
+    try {
+      const r = await api.createBusiness({
+        name,
+        type,
+        ...(ownerEmail ? { ownerEmail } : {}),
+        ...(ownerEmail && ownerPassword ? { ownerPassword } : {}),
+      });
+      setBusy(false);
+      if (r.ok) {
+        setTenants((p) => [...p, r.data]);
+        setOpen(false);
+        setName('');
+        setOwnerEmail('');
+        setOwnerPassword('');
+      }
+    } catch (err) {
+      setBusy(false);
+      setError((err as { error?: { message?: string } })?.error?.message ?? 'Tidak dapat terhubung ke server');
     }
   };
 
-  const toggleStatus = (id: string, current: Business['status']) => {
-    setTenants((p) => p.map((t) => (t.id === id ? { ...t, status: current === 'suspended' ? 'active' : 'suspended' } : t)));
+  const toggleStatus = async (id: string, current: Business['status']) => {
+    const next = current === 'suspended' ? 'active' : 'suspended';
+    const r = await api.updateBusinessStatus(id, next);
+    if (r.ok) setTenants((p) => p.map((t) => (t.id === id ? r.data : t)));
   };
 
   return (
@@ -43,7 +75,12 @@ export function TenantsAdmin() {
           <Link to="/" className="text-sm font-semibold text-ink-500 hover:text-ink-800">
             <Icon name="arrowLeft" size={14} className="mr-1 inline" /> Beranda
           </Link>
-          <Badge tone="brand">Super Admin</Badge>
+          <div className="flex items-center gap-3">
+            <Badge tone="brand">Super Admin</Badge>
+            <button onClick={logout} className="flex items-center gap-1.5 text-sm font-semibold text-ink-500 hover:text-danger-600">
+              <Icon name="logout" size={15} /> Keluar
+            </button>
+          </div>
         </div>
 
         <PageHeader
@@ -65,7 +102,9 @@ export function TenantsAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-50">
-                {tenants.map((t) => (
+                {loading
+                  ? <tr><td colSpan={5}><TableSkeleton rows={4} cols={4} /></td></tr>
+                  : tenants.map((t) => (
                   <tr key={t.id} className="hover:bg-ink-50/50">
                     <td className="td">
                       <div className="flex items-center gap-3">
@@ -74,7 +113,7 @@ export function TenantsAdmin() {
                         </span>
                         <div>
                           <p className="font-semibold text-ink-900">{t.name}</p>
-                          <p className="text-xs text-ink-400">/{t.slug}</p>
+                          <p className="text-xs text-ink-500">/{t.slug}</p>
                         </div>
                       </div>
                     </td>
@@ -102,13 +141,19 @@ export function TenantsAdmin() {
           </div>
         </Card>
 
-        <p className="mt-4 text-xs text-ink-400">
+        <p className="mt-4 text-xs text-ink-500">
           Data setiap tenant terisolasi penuh di backend — anggota tenant tidak dapat mengakses data tenant lain.
         </p>
       </div>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Buat Tenant Baru">
         <form onSubmit={create} className="space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 rounded-xl border border-danger-500/40 bg-danger-500/10 px-3 py-2 text-sm text-danger-600">
+              <Icon name="alert" size={15} />
+              {error}
+            </div>
+          )}
           <Field label="Nama Tenant">
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="cth: Urban Cuts" autoFocus />
           </Field>
@@ -128,6 +173,12 @@ export function TenantsAdmin() {
                 </button>
               ))}
             </div>
+          </Field>
+          <Field label="Email Owner (opsional)">
+            <input className="input" type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="cth: owner@urbancuts.id" />
+          </Field>
+          <Field label="Password Owner (opsional, min 6)">
+            <input className="input" type="password" value={ownerPassword} onChange={(e) => setOwnerPassword(e.target.value)} placeholder="Minimal 6 karakter" />
           </Field>
           <button type="submit" className="btn-primary w-full" disabled={busy}>
             {busy ? <><span className="btn-spinner" /> Membuat...</> : 'Buat Tenant'}

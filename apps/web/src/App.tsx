@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import type { Business } from '@washcut/shared';
 import { api } from './lib/api';
+import { isAuthenticated } from './lib/auth';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { BusinessSelect } from './pages/BusinessSelect';
@@ -10,10 +12,21 @@ import { Services } from './pages/Services';
 import { Customers } from './pages/Customers';
 import { Bookings } from './pages/Bookings';
 import { Checkout } from './pages/Checkout';
+import { Queue } from './pages/Queue';
+import { StaffPage } from './pages/Staff';
 import { TenantsAdmin } from './pages/TenantsAdmin';
 import { Settings } from './pages/Settings';
+import { Inventory } from './pages/Inventory';
+import { Membership } from './pages/Membership';
+import { Reports } from './pages/Reports';
+import { Branches } from './pages/Branches';
 import { AppLayout } from './components/layout/AppLayout';
 import { Skeleton } from './components/ui/Card';
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
 
 function BusinessGate() {
   const { businessId } = useParams();
@@ -45,16 +58,23 @@ export function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/business" element={<BusinessSelect />} />
-        <Route path="/tenants" element={<TenantsAdmin />} />
-        <Route path="/app/:businessId" element={<BusinessGate />}>
+        <Route path="/business" element={<RequireAuth><BusinessSelect /></RequireAuth>} />
+        <Route path="/tenants" element={<RequireAuth><TenantsAdmin /></RequireAuth>} />
+        <Route path="/app/:businessId" element={<RequireAuth><BusinessGate /></RequireAuth>}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="services" element={<Services />} />
           <Route path="customers" element={<Customers />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="pos" element={<Checkout />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="queue" element={<Queue />} />
+          <Route path="staff" element={<StaffPage />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="membership" element={<Membership />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="branches" element={<Branches />} />
         </Route>
       </Routes>
     </BrowserRouter>

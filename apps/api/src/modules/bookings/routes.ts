@@ -21,6 +21,9 @@ export function registerBookingRoutes(router: Router) {
     if (req.query.date) {
       list = list.filter((b) => b.startsAt.slice(0, 10) === String(req.query.date));
     }
+    if (req.query.status) {
+      list = list.filter((b) => b.status === String(req.query.status));
+    }
     list.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     res.json({ ok: true, data: list });
   });

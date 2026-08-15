@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import type { Booking, Business } from '@washcut/shared';
-import { api, formatRupiah, formatTime } from '../lib/api';
+import type { Booking, Business, Payment } from '@washcut/shared';
+import { api, formatDate, formatDateKey, formatRupiah, formatTime } from '../lib/api';
 import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui/Card';
 import { Badge, statusLabel, statusTone } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
 
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const;
 
@@ -11,27 +12,63 @@ export function Bookings() {
   const { business } = useOutletContext<{ business: Business }>();
   const [list, setList] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('all');
-  const today = new Date().toISOString().slice(0, 10);
+  const [payments, setPayments] = useState<Payment[] | null>(null);
+  const today = formatDateKey(new Date());
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
-    api.listBookings(business.id, today).then((r) => {
-      if (r.ok) setList(r.data);
-      setLoading(false);
-    });
-  }, [business.id, today]);
+    setError('');
+    api
+      .listBookings(business.id, today)
+      .then((r) => {
+        if (r.ok) setList(r.data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+        setError((e as { error?: { message?: string } })?.error?.message || 'Tidak dapat terhubung ke server');
+      });
+  };
+
+  useEffect(load, [business.id, today]);
 
   const rows = list.filter((b) => filter === 'all' || b.status === filter);
 
   const setStatus = async (id: string, status: Booking['status']) => {
-    const r = await api.updateBookingStatus(business.id, id, status);
-    if (r.ok) setList((p) => p.map((b) => (b.id === id ? r.data : b)));
+    try {
+      const r = await api.updateBookingStatus(business.id, id, status);
+      if (r.ok) setList((p) => p.map((b) => (b.id === id ? r.data : b)));
+    } catch (e) {
+      setError((e as { error?: { message?: string } })?.error?.message || 'Tidak dapat terhubung ke server');
+    }
+  };
+
+  const openPayments = async () => {
+    setPayments([]);
+    try {
+      const r = await api.listPayments(business.id);
+      if (r.ok) setPayments(r.data.slice().sort((a, b) => b.paidAt.localeCompare(a.paidAt)).slice(0, 10));
+    } catch {
+      setPayments(null);
+    }
   };
 
   return (
     <>
-      <PageHeader title="Pesanan" subtitle={`Jadwal ${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`} />
+      <PageHeader
+        title="Pesanan"
+        subtitle={`Jadwal ${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`}
+        action={<button className="btn-outline btn-sm" onClick={openPayments}>Riwayat Pembayaran</button>}
+      />
+
+      {error && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+          <span>{error}</span>
+          <button className="text-sm font-semibold underline" onClick={load}>Muat ulang</button>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -60,7 +97,7 @@ export function Bookings() {
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex w-16 flex-col items-center rounded-xl bg-ink-50 py-2">
                   <span className="text-lg font-extrabold text-ink-900">{formatTime(b.startsAt)}</span>
-                  <span className="text-[10px] text-ink-400">s/d {formatTime(b.endsAt)}</span>
+                  <span className="text-[10px] text-ink-500">s/d {formatTime(b.endsAt)}</span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -73,7 +110,7 @@ export function Bookings() {
                     {b.vehiclePlate ? ` · ${b.vehiclePlate}` : ''}
                     {b.staffName ? ` · ${b.staffName}` : ''}
                   </p>
-                  {b.notes && <p className="mt-1 text-xs text-ink-400">{b.notes}</p>}
+                  {b.notes && <p className="mt-1 text-xs text-ink-500">{b.notes}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <span className="font-bold text-ink-900">{formatRupiah(b.amount)}</span>
@@ -94,6 +131,24 @@ export function Bookings() {
           ))}
         </div>
       )}
+
+      <Modal open={payments !== null} onClose={() => setPayments(null)} title="Riwayat Pembayaran">
+        {payments && payments.length === 0 ? (
+          <EmptyState title="Belum ada pembayaran" hint="Pembayaran POS akan tampil di sini." />
+        ) : (
+          <div className="divide-y divide-ink-100">
+            {payments?.map((p) => (
+              <div key={p.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-ink-900">{formatRupiah(p.amount)}</p>
+                  <p className="text-xs text-ink-500">{p.method.toUpperCase()} · {formatDate(p.paidAt)}</p>
+                </div>
+                <Badge tone="green">Lunas</Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

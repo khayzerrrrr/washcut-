@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import type { Business } from '@washcut/shared';
-import { api } from '../lib/api';
-import { Card, PageHeader } from '../components/ui/Card';
+import type { ActivityLog, Business } from '@washcut/shared';
+import { api, formatDate } from '../lib/api';
+import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui/Card';
 import { Logo } from '../components/ui/Logo';
 import { Icon } from '../components/ui/Icon';
 
@@ -17,6 +17,20 @@ export function Settings() {
   const [preview, setPreview] = useState<string | undefined>(business.logo);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    api.listActivityLogs(business.id)
+      .then((r) => {
+        if (active && r.ok) setLogs(r.data);
+      })
+      .finally(() => active && setLogsLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [business.id]);
 
   const onFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
@@ -84,7 +98,7 @@ export function Settings() {
             </div>
           </div>
 
-          <p className="mt-4 text-xs text-ink-400">
+          <p className="mt-4 text-xs text-ink-500">
             Disarankan PNG transparan. Maks 500KB. Logo otomatis ditampilkan sebagai gambar tanpa teks nama.
           </p>
 
@@ -121,6 +135,32 @@ export function Settings() {
           </dl>
         </Card>
       </div>
+
+      <Card className="mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-ink-900">Aktivitas Terakhir</h2>
+        <p className="mt-1 text-sm text-ink-500">Aktivitas terbaru dalam bisnis ini.</p>
+        {logsLoading ? (
+          <div className="mt-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+          </div>
+        ) : logs.length === 0 ? (
+          <div className="mt-4">
+            <EmptyState title="Belum ada aktivitas" hint="Aktivitas terbaru akan muncul di sini." />
+          </div>
+        ) : (
+          <ul className="mt-4 divide-y divide-ink-100">
+            {logs.slice(0, 10).map((l) => (
+              <li key={l.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-ink-900">{l.action}</p>
+                  {l.entity && <p className="truncate text-xs text-ink-500">{l.entity}</p>}
+                </div>
+                <span className="shrink-0 text-xs text-ink-400">{formatDate(l.createdAt)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </>
   );
 }

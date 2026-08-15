@@ -5,6 +5,13 @@ import { registerServiceRoutes } from './modules/services/routes.js';
 import { registerCustomerRoutes } from './modules/customers/routes.js';
 import { registerBookingRoutes } from './modules/bookings/routes.js';
 import { registerCheckoutRoutes } from './modules/checkout/routes.js';
+import { registerStaffRoutes } from './modules/staff/routes.js';
+import { registerQueueRoutes } from './modules/queue/routes.js';
+import { registerInventoryRoutes } from './modules/inventory/routes.js';
+import { registerMembershipRoutes } from './modules/membership/routes.js';
+import { registerBranchRoutes } from './modules/branches/routes.js';
+import { registerReportsRoutes } from './modules/reports/routes.js';
+import { registerOperationsRoutes } from './modules/operations/routes.js';
 
 export function createApp() {
   const app = express();
@@ -20,6 +27,13 @@ export function createApp() {
   registerCustomerRoutes(app);
   registerBookingRoutes(app);
   registerCheckoutRoutes(app);
+  registerStaffRoutes(app);
+  registerQueueRoutes(app);
+  registerInventoryRoutes(app);
+  registerMembershipRoutes(app);
+  registerBranchRoutes(app);
+  registerReportsRoutes(app);
+  registerOperationsRoutes(app);
 
   return app;
 }
