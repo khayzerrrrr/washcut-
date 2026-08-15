@@ -12,6 +12,7 @@ Baca dokumen plan sebelum membangun fitur (sumber kebenaran untuk agent AI):
 - `docs/plan/technology.md` — tech stack & konvensi
 - `docs/plan/database.md` — data model & isolasi tenant
 - `docs/plan/api.md` — kontrak REST API
+- `docs/design.md` — design system & aturan UI/UX (warna, tipografi, komponen)
 
 ## Arsitektur
 

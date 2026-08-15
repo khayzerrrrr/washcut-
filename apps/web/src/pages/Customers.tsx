@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { Business, Customer, Vehicle } from '@washcut/shared';
 import { api } from '../lib/api';
-import { Card, EmptyState, PageHeader } from '../components/ui/Card';
+import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Icon } from '../components/ui/Icon';
 
@@ -11,11 +11,15 @@ export function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selected, setSelected] = useState<Customer | null>(null);
+  const [loading, setLoading] = useState(true);
   const isWash = business.type === 'car_wash';
 
   useEffect(() => {
-    api.listCustomers(business.id).then((r) => r.ok && setCustomers(r.data));
-    if (isWash) api.listVehicles(business.id).then((r) => r.ok && setVehicles(r.data));
+    setLoading(true);
+    Promise.all([
+      api.listCustomers(business.id).then((r) => r.ok && setCustomers(r.data)),
+      isWash ? api.listVehicles(business.id).then((r) => r.ok && setVehicles(r.data)) : Promise.resolve(),
+    ]).finally(() => setLoading(false));
   }, [business.id, isWash]);
 
   const customerVehicles = (cid: string) => vehicles.filter((v) => v.customerId === cid);
@@ -25,7 +29,17 @@ export function Customers() {
       <PageHeader title="Pelanggan" subtitle={`${customers.length} pelanggan terdaftar`} />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 p-0 overflow-hidden">
-          {customers.length === 0 ? (
+          {loading ? (
+            <div className="space-y-3 p-5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          ) : customers.length === 0 ? (
             <EmptyState title="Belum ada pelanggan" />
           ) : (
             <div className="overflow-x-auto">
@@ -75,7 +89,7 @@ export function Customers() {
                   {selected.name.charAt(0)}
                 </span>
                 <div>
-                  <h2 className="font-bold text-ink-900">{selected.name}</h2>
+                  <h2 className="font-display font-bold text-ink-900">{selected.name}</h2>
                   <p className="text-xs text-ink-500">{selected.phone}</p>
                 </div>
               </div>

@@ -12,6 +12,7 @@ import { Bookings } from './pages/Bookings';
 import { Checkout } from './pages/Checkout';
 import { TenantsAdmin } from './pages/TenantsAdmin';
 import { AppLayout } from './components/layout/AppLayout';
+import { Skeleton } from './components/ui/Card';
 
 function BusinessGate() {
   const { businessId } = useParams();
@@ -23,7 +24,17 @@ function BusinessGate() {
   }, [businessId]);
 
   if (missing) return <div className="p-10 text-center text-ink-500">Bisnis tidak ditemukan.</div>;
-  if (!business) return <div className="p-10 text-center text-ink-400">Memuat...</div>;
+  if (!business)
+    return (
+      <div className="p-8">
+        <Skeleton className="mb-4 h-8 w-64" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
+        </div>
+      </div>
+    );
   return <AppLayout business={business} />;
 }
 

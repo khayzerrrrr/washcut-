@@ -31,7 +31,7 @@ const features = [
 export function Landing() {
   return (
     <div className="min-h-screen bg-ink-900 text-white">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(79,70,229,0.18),transparent_60%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(220,38,38,0.16),transparent_60%)]" />
 
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
@@ -49,7 +49,7 @@ export function Landing() {
         <span className="badge ring-1 ring-inset ring-brand-500/40 bg-brand-500/10 text-brand-300">
           Platform SaaS untuk bisnis jasa lokal
         </span>
-        <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
+        <h1 className="font-display mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
           Satu dashboard untuk <span className="text-brand-400">barbershop</span> dan{' '}
           <span className="text-sky-400">car wash</span>
         </h1>
@@ -95,16 +95,34 @@ export function Landing() {
               <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${f.tone}`}>
                 <Icon name={f.icon} size={20} />
               </span>
-              <h3 className="mt-4 font-bold">{f.title}</h3>
+              <h3 className="font-display mt-4 font-bold">{f.title}</h3>
               <p className="mt-2 text-sm text-ink-400">{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
+      <section className="relative mx-auto max-w-6xl px-6 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ['Raka, Owner Kings Barber', 'Booking per barber jadi rapi. Pelanggan lama tidak perlu nunggu lagi.', 'Kings Barber & Co'],
+            ['Sinta, Owner AquaShine', 'Dari check-in kendaraan sampai kasir semua satu aplikasi. Data pelanggan aman.', 'AquaShine Car Wash'],
+            ['Denny, Staff', 'Ganti shift tidak perlu catat manual lagi. Status pesanan langsung jelas.', 'Kings Barber & Co'],
+          ].map(([name, quote, role]) => (
+            <figure key={name} className="rounded-2xl border border-ink-700 bg-ink-800/50 p-6">
+              <p className="text-sm text-ink-300">"{quote}"</p>
+              <figcaption className="mt-4">
+                <p className="font-semibold text-white">{name}</p>
+                <p className="text-xs text-ink-400">{role}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
       <section id="platform" className="relative mx-auto max-w-6xl px-6 py-12">
         <div className="rounded-3xl border border-ink-700 bg-ink-800/40 p-8 sm:p-12">
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Satu kode, banyak perangkat</h2>
+          <h2 className="font-display text-center text-2xl font-bold sm:text-3xl">Satu kode, banyak perangkat</h2>
           <div className="mt-8 grid gap-4 text-center sm:grid-cols-3">
             {[
               ['iPhone', 'PWA — install dari Safari', 'shield'],

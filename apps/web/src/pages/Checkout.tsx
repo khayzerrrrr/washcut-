@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { Business, Customer, ServiceItem } from '@washcut/shared';
 import { api, formatRupiah } from '../lib/api';
-import { Card, PageHeader } from '../components/ui/Card';
+import { Card, PageHeader, Skeleton } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Icon } from '../components/ui/Icon';
 
@@ -10,14 +10,18 @@ export function Checkout() {
   const { business } = useOutletContext<{ business: Business }>();
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [customer, setCustomer] = useState('');
   const [method, setMethod] = useState<'cash' | 'qris'>('cash');
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    api.listServices(business.id).then((r) => r.ok && setServices(r.data.filter((s) => s.active)));
-    api.listCustomers(business.id).then((r) => r.ok && setCustomers(r.data));
+    setLoading(true);
+    Promise.all([
+      api.listServices(business.id).then((r) => r.ok && setServices(r.data.filter((s) => s.active))),
+      api.listCustomers(business.id).then((r) => r.ok && setCustomers(r.data)),
+    ]).finally(() => setLoading(false));
   }, [business.id]);
 
   const checkout = async () => {
@@ -45,7 +49,7 @@ export function Checkout() {
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
             <Icon name="check" size={32} />
           </span>
-          <h2 className="mt-4 text-xl font-bold text-ink-900">Transaksi Berhasil</h2>
+          <h2 className="font-display mt-4 text-xl font-bold text-ink-900">Transaksi Berhasil</h2>
           <p className="mt-2 text-sm text-ink-500">
             {formatRupiah(selectedService!.price)} · {customer || 'Walk-in'}
           </p>
@@ -57,10 +61,13 @@ export function Checkout() {
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2 p-0 overflow-hidden">
             <div className="border-b border-ink-100 px-5 py-3">
-              <h2 className="font-bold text-ink-900">Pilih Layanan</h2>
+              <h2 className="font-display font-bold text-ink-900">Pilih Layanan</h2>
             </div>
             <div className="grid gap-2 p-4 sm:grid-cols-2">
-              {services.map((s) => (
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)
+              ) : (
+                services.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setSelectedService(s)}
@@ -74,12 +81,13 @@ export function Checkout() {
                     <span className="font-bold text-brand-600">{formatRupiah(s.price)}</span>
                   </p>
                 </button>
-              ))}
+              ))
+              )}
             </div>
           </Card>
 
           <Card className="p-5">
-            <h2 className="font-bold text-ink-900">Ringkasan</h2>
+            <h2 className="font-display font-bold text-ink-900">Ringkasan</h2>
             <label className="label mt-4">Pelanggan</label>
             <input className="input" list="cust" value={customer} onChange={(e) => setCustomer(e.target.value)} placeholder="Nama atau walk-in" />
             <datalist id="cust">

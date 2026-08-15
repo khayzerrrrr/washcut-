@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { Booking, Business } from '@washcut/shared';
 import { api, formatRupiah, formatTime } from '../lib/api';
-import { Card, EmptyState, PageHeader } from '../components/ui/Card';
+import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui/Card';
 import { Badge, statusLabel, statusTone } from '../components/ui/Badge';
 
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const;
@@ -10,11 +10,16 @@ const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'] as con
 export function Bookings() {
   const { business } = useOutletContext<{ business: Business }>();
   const [list, setList] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('all');
   const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
-    api.listBookings(business.id, today).then((r) => r.ok && setList(r.data));
+    setLoading(true);
+    api.listBookings(business.id, today).then((r) => {
+      if (r.ok) setList(r.data);
+      setLoading(false);
+    });
   }, [business.id, today]);
 
   const rows = list.filter((b) => filter === 'all' || b.status === filter);
@@ -42,7 +47,11 @@ export function Bookings() {
         ))}
       </div>
 
-      {rows.length === 0 ? (
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
+        </div>
+      ) : rows.length === 0 ? (
         <EmptyState title="Tidak ada booking" hint="Coba filter lain." />
       ) : (
         <div className="space-y-3">

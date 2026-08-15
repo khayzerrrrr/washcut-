@@ -41,7 +41,7 @@ export function BusinessSelect() {
           <Link to="/" className="text-sm font-semibold text-ink-500 hover:text-ink-800">← Beranda</Link>
           <span className="badge ring-1 ring-inset ring-brand-200 bg-brand-50 text-brand-700">Owner</span>
         </div>
-        <h1 className="text-2xl font-bold text-ink-900">Pilih Bisnis</h1>
+        <h1 className="font-display text-2xl font-bold text-ink-900">Pilih Bisnis</h1>
         <p className="mt-1 text-sm text-ink-500">Anda memiliki {list.length} bisnis. Pilih untuk masuk ke dashboard.</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">

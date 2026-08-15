@@ -9,7 +9,7 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-ink-200 bg-white px-5 py-4">
-          <h3 className="font-bold text-ink-900">{title}</h3>
+          <h3 className="font-display font-bold text-ink-900">{title}</h3>
           <button onClick={onClose} className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18M6 6l12 12" />

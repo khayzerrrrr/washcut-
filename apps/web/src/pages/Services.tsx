@@ -3,19 +3,23 @@ import type { FormEvent } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { Business, ServiceItem } from '@washcut/shared';
 import { api, formatRupiah } from '../lib/api';
-import { Card, PageHeader } from '../components/ui/Card';
+import { Card, EmptyState, PageHeader, TableSkeleton } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Field, Modal } from '../components/ui/Modal';
-import { EmptyState } from '../components/ui/Card';
 
 export function Services() {
   const { business } = useOutletContext<{ business: Business }>();
   const [list, setList] = useState<ServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: '', category: '', price: '', durationMin: '' });
 
   useEffect(() => {
-    api.listServices(business.id).then((r) => r.ok && setList(r.data));
+    setLoading(true);
+    api.listServices(business.id).then((r) => {
+      if (r.ok) setList(r.data);
+      setLoading(false);
+    });
   }, [business.id]);
 
   const create = async (e: FormEvent) => {
@@ -43,14 +47,18 @@ export function Services() {
         action={<button className="btn-primary" onClick={() => setOpen(true)}>+ Tambah Layanan</button>}
       />
 
-      {list.length === 0 ? (
+      {loading ? (
+        <Card className="p-0 overflow-hidden">
+          <TableSkeleton rows={5} cols={4} />
+        </Card>
+      ) : list.length === 0 ? (
         <EmptyState title="Belum ada layanan" hint="Tambahkan layanan pertama Anda." />
       ) : (
         <div className="space-y-6">
           {categories.map((cat) => (
             <Card key={cat} className="p-0 overflow-hidden">
               <div className="border-b border-ink-100 bg-ink-50 px-5 py-3">
-                <h2 className="text-sm font-bold text-ink-700">{cat}</h2>
+                <h2 className="font-display text-sm font-bold text-ink-700">{cat}</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[480px]">
