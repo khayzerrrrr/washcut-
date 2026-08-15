@@ -1,0 +1,54 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import type { BusinessType } from '@washcut/shared';
+import { db, nextId } from '../../db.js';
+import { authenticate, requireSuperAdmin } from '../../auth/middleware.js';
+
+const createTenantSchema = z.object({
+  name: z.string().min(2),
+  type: z.enum(['barbershop', 'car_wash'] as const satisfies readonly BusinessType[]),
+  slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'slug hanya huruf kecil, angka, dan dash'),
+});
+
+/**
+ * Manajemen tenant — HANYA super_admin (pemilik platform).
+ * Pemilik platform yang menentukan jenis bisnis (car wash / barbershop).
+ */
+export function registerTenantRoutes(router: Router) {
+  router.get('/api/tenants', authenticate, requireSuperAdmin, (_req, res) => {
+    res.json({ ok: true, data: db.businesses });
+  });
+
+  router.post('/api/tenants', authenticate, requireSuperAdmin, (req, res) => {
+    const parsed = createTenantSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: parsed.error.message } });
+    }
+    if (db.businesses.some((b) => b.slug === parsed.data.slug)) {
+      return res.status(409).json({ ok: false, error: { code: 'DUPLICATE_SLUG', message: 'Slug sudah dipakai' } });
+    }
+    const now = new Date().toISOString();
+    const business = {
+      id: nextId('businesses'),
+      ...parsed.data,
+      status: 'trial' as const,
+      ownerId: req.user!.sub,
+      createdAt: now,
+      updatedAt: now,
+    };
+    db.businesses.push(business);
+    res.status(201).json({ ok: true, data: business });
+  });
+
+  router.patch('/api/tenants/:id', authenticate, requireSuperAdmin, (req, res) => {
+    const b = db.businesses.find((x) => x.id === req.params.id);
+    if (!b) return res.status(404).json({ ok: false, error: { code: 'NOT_FOUND', message: 'Tenant tidak ditemukan' } });
+    const status = req.body.status;
+    if (!['active', 'suspended', 'trial'].includes(status)) {
+      return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'status tidak valid' } });
+    }
+    b.status = status;
+    b.updatedAt = new Date().toISOString();
+    res.json({ ok: true, data: b });
+  });
+}

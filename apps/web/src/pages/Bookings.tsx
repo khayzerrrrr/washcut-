@@ -64,7 +64,7 @@ export function Bookings() {
                     {b.vehiclePlate ? ` · ${b.vehiclePlate}` : ''}
                     {b.staffName ? ` · ${b.staffName}` : ''}
                   </p>
-                  {b.notes && <p className="mt-1 text-xs text-ink-400">📝 {b.notes}</p>}
+                  {b.notes && <p className="mt-1 text-xs text-ink-400">{b.notes}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <span className="font-bold text-ink-900">{formatRupiah(b.amount)}</span>

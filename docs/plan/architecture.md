@@ -89,12 +89,15 @@ Staff → POST /api/businesses/:id/bookings/:bid/checkout
   → (nanti) kirim notifikasi
 ```
 
-## 7. Keamanan
+## 7. Keamanan & Isolasi Tenant
 
 - JWT access token (short) + refresh token (long), disimpan httpOnly cookie (fase web) / secure storage.
-- Role check per endpoint (`requireRole('owner','staff')`).
-- **Tenant isolation** diuji dengan 2 tenant berbeda — data tidak boleh bocor (lihat reviewer agent).
+- **Isolasi tenant (anti bocor data):** `businessId` selalu diambil dari **JWT**, bukan URL/body. Middleware `requireTenantAccess` memaksa `token.businessId === :businessId` → beda = **403**. Client tidak bisa mengubah URL untuk mengintip tenant lain. Teruji oleh `npm run verify:isolation -w apps/api` (9 kasus: read, write, checkout silang, staff, tanpa token).
+- **Super admin** (pemilik platform) adalah satu-satunya yang bisa membuka `/api/tenants/*` dan menentukan `type` tenant (barbershop / car_wash) lewat `requireSuperAdmin`.
+- Role check per endpoint (`owner`/`staff` via token; tenant-scoped data).
+- Semua list selalu difilter `businessId === token.businessId` (helper `scoped()`), termasuk di modul services/customers/bookings/payments.
 - Validasi semua input dengan zod; batasi body size; rate limit login.
+- **Tenant isolation** diuji dengan 2 tenant berbeda — data tidak boleh bocor (lihat `verify-isolation.ts`).
 
 ## 8. Deployment (target)
 

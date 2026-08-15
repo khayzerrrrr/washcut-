@@ -4,6 +4,7 @@ import type { Business, Customer, Vehicle } from '@washcut/shared';
 import { api } from '../lib/api';
 import { Card, EmptyState, PageHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { Icon } from '../components/ui/Icon';
 
 export function Customers() {
   const { business } = useOutletContext<{ business: Business }>();
@@ -118,7 +119,9 @@ export function Customers() {
             </>
           ) : (
             <div className="py-10 text-center">
-              <p className="text-4xl">👈</p>
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-ink-100 text-ink-400">
+                <Icon name="users" size={26} />
+              </span>
               <p className="mt-2 text-sm text-ink-500">Klik pelanggan untuk melihat detail.</p>
             </div>
           )}

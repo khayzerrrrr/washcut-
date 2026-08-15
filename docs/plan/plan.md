@@ -67,8 +67,8 @@ Semua halaman memakai mock data dari `packages/shared`; diganti ke API nyata di 
 
 | Versi | Isi | Status |
 |-------|-----|--------|
-| v0.1 | Skeleton monorepo + AI agents + dokumen plan | ✅ terpasang |
-| v0.2 | **Frontend-first**: design system + UI lengkap (login, dashboard, services, customers, bookings, checkout) + mock data + PWA-ready | 🔜 berikutnya |
+| v0.1 | Skeleton monorepo + AI agents + dokumen plan | terpasang |
+| v0.2 | **Frontend-first**: design system + UI lengkap (login, dashboard, services, customers, bookings, checkout) + mock data + PWA-ready | berikutnya |
 | v0.3 | Backend: auth + tenant + services + customers + bookings; hubungkan ke frontend | todo |
 | v0.4 | Kasir & pembayaran + dashboard data real | todo |
 | v0.5 | Laporan + notifikasi reminder | todo |

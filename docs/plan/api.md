@@ -7,35 +7,33 @@
 
 - REST, resource-oriented, JSON. Prefix `GET/POST/PUT/PATCH/DELETE /api/v1/...` (saat ini tanpa `/v1`, tambah saat rilis).
 - Validasi semua input dengan **zod**; error → HTTP 400 dengan `code: 'VALIDATION'`.
-- **Konteks tenant**: middleware menetapkan `businessId` dari header `X-Business-Id` ATAU token JWT owner/staff. `businessId` TIDAK boleh dipercaya dari body.
+- **ISOLASI TENANT (wajib)**: `businessId` diambil dari **JWT** (milik user), BUKAN dari URL/body. Middleware `requireTenantAccess` membandingkan `businessId` token vs `:businessId` URL → tidak cocok = **403 FORBIDDEN**. Client tidak bisa "pindah tenant" dengan mengganti URL.
 - Error format:
   ```json
   { "ok": false, "error": { "code": "NOT_FOUND", "message": "Business tidak ditemukan" } }
   ```
 - Sukses: `{ "ok": true, "data": ... }`. List → `{ "ok": true, "data": { "items": [...], "total": n } }`.
-- HTTP status: 200 OK, 201 Created, 400 Validasi, 401 Unauthorized, 403 Forbidden (bukan tenant), 404 Not Found, 409 Konflik (slot terisi), 500 Internal.
+- HTTP status: 200 OK, 201 Created, 400 Validasi, 401 Unauthorized, 403 Forbidden (bukan tenant), 404 Not Found, 409 Konflik (slot terisi / slug duplikat), 500 Internal.
 
 ## 2. Autentikasi & Otorisasi
 
-- `POST /api/auth/register` — buat user (role owner/customer).
-- `POST /api/auth/login` → `{ accessToken, refreshToken, user }`.
-- `POST /api/auth/refresh` — token baru.
-- `POST /api/auth/logout`.
-- Role di token: `super_admin`, `owner`, `staff`, `customer`. Guard: `requireRole(...)`.
+- `POST /api/auth/login` → `{ accessToken, user }`. JWT HS256, claim: `sub`, `role`, `businessId` (null utk super_admin), `exp`.
+- `GET /api/auth/me` — profil dari token.
+- Role di token: `super_admin`, `owner`, `staff`, `customer`.
+- **Super admin** (pemilik platform) = satu-satunya yang boleh membuka endpoint `/api/tenants/*`. Pemilik platform yang menentukan `type` tenant (car wash / barbershop).
+- Guard: `authenticate` (401), `requireSuperAdmin` (403), `requireTenantAccess` (403 bila token ≠ tenant URL).
 - (Fase web) access token short-lived; refresh token di httpOnly cookie.
 
 ## 3. Endpoint per Modul
 
-### Tenancy
+### Tenancy (khusus super admin)
 | Method | Path | Keterangan |
 |--------|------|------------|
-| GET | `/api/businesses` | list punya owner |
-| GET | `/api/businesses/:id` | detail |
-| POST | `/api/businesses` | buat bisnis (`type` required: barbershop/car_wash) |
-| PATCH | `/api/businesses/:id` | ubah nama/type/settings |
-| POST | `/api/businesses/:id/activate` | (nanti) mulai langganan |
+| GET | `/api/tenants` | list semua tenant |
+| POST | `/api/tenants` | buat tenant: `{ name, type: barbershop\|car_wash, slug }` → 409 `DUPLICATE_SLUG` |
+| PATCH | `/api/tenants/:id` | ubah status `active` / `suspended` / `trial` |
 
-### Services
+### Services (tenant-scoped)
 | Method | Path |
 |--------|------|
 | GET | `/api/businesses/:businessId/services` |
@@ -49,23 +47,22 @@
 | GET | `/api/businesses/:businessId/customers` |
 | POST | `/api/businesses/:businessId/customers` |
 | PATCH | `/api/businesses/:businessId/customers/:customerId` |
-| GET | `/api/businesses/:businessId/customers/:customerId/vehicles` (car_wash) |
-| POST | `/api/businesses/:businessId/customers/:customerId/vehicles` (car_wash) |
+| GET | `/api/businesses/:businessId/vehicles` (car_wash) |
+| POST | `/api/businesses/:businessId/vehicles` (car_wash) |
 
 ### Bookings
 | Method | Path | Keterangan |
 |--------|------|------------|
 | GET | `/api/businesses/:businessId/bookings?date=&status=` | kalender/hari ini |
 | POST | `/api/businesses/:businessId/bookings` | body: customerId, serviceId, startsAt, (staffId, vehicleId, walkIn, notes) |
-| PATCH | `/api/businesses/:businessId/bookings/:bookingId` | ubah slot/status |
+| PATCH | `/api/businesses/:businessId/bookings/:bookingId` | ubah status (pending/confirmed/completed/cancelled) |
 | POST | `/api/businesses/:businessId/bookings/:bookingId/cancel` | status → cancelled |
-| POST | `/api/businesses/:businessId/bookings/:bookingId/checkout` | buat invoice + terima payment (v0.3) |
 
-### Payments
+### Payments & Checkout
 | Method | Path |
 |--------|------|
 | GET | `/api/businesses/:businessId/payments?date=` |
-| POST | `/api/businesses/:businessId/payments` | catat payment manual |
+| POST | `/api/businesses/:businessId/checkout` | body: `{ bookingId, method, amount }` → 201 payment + sisa tagihan |
 | GET | `/api/businesses/:businessId/reports/daily` | (P2) ringkasan pendapatan |
 
 ## 4. Validasi & Logika Penting

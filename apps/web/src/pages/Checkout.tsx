@@ -4,6 +4,7 @@ import type { Business, Customer, ServiceItem } from '@washcut/shared';
 import { api, formatRupiah } from '../lib/api';
 import { Card, PageHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { Icon } from '../components/ui/Icon';
 
 export function Checkout() {
   const { business } = useOutletContext<{ business: Business }>();
@@ -41,7 +42,9 @@ export function Checkout() {
 
       {done ? (
         <Card className="mx-auto max-w-md p-10 text-center">
-          <span className="text-5xl">✅</span>
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <Icon name="check" size={32} />
+          </span>
           <h2 className="mt-4 text-xl font-bold text-ink-900">Transaksi Berhasil</h2>
           <p className="mt-2 text-sm text-ink-500">
             {formatRupiah(selectedService!.price)} · {customer || 'Walk-in'}
@@ -93,7 +96,7 @@ export function Checkout() {
                     method === m ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-ink-300 text-ink-600 hover:bg-ink-50'
                   }`}
                 >
-                  {m === 'cash' ? '💵 Tunai' : '📱 QRIS'}
+                  {m === 'cash' ? <><Icon name="cash" size={16} /> Tunai</> : <><Icon name="qr" size={16} /> QRIS</>}
                 </button>
               ))}
             </div>

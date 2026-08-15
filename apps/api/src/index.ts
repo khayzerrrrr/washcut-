@@ -1,7 +1,10 @@
 import express from 'express';
+import { registerAuthRoutes } from './auth/routes.js';
+import { registerTenantRoutes } from './modules/tenants/routes.js';
 import { registerServiceRoutes } from './modules/services/routes.js';
+import { registerCustomerRoutes } from './modules/customers/routes.js';
 import { registerBookingRoutes } from './modules/bookings/routes.js';
-import { registerTenancyRoutes } from './modules/tenancy/routes.js';
+import { registerCheckoutRoutes } from './modules/checkout/routes.js';
 
 export function createApp() {
   const app = express();
@@ -11,9 +14,12 @@ export function createApp() {
     res.json({ ok: true, uptime: process.uptime() });
   });
 
-  registerTenancyRoutes(app);
+  registerAuthRoutes(app);
+  registerTenantRoutes(app);
   registerServiceRoutes(app);
+  registerCustomerRoutes(app);
   registerBookingRoutes(app);
+  registerCheckoutRoutes(app);
 
   return app;
 }

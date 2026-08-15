@@ -24,7 +24,7 @@ export function Dashboard() {
   return (
     <>
       <PageHeader
-        title={`Halo, Owner 👋`}
+        title={`Halo, Owner`}
         subtitle={`Ringkasan ${business.name} hari ini`}
       />
 

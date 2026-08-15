@@ -5,6 +5,7 @@ import type { Business } from '@washcut/shared';
 import { api } from '../lib/api';
 import { Badge } from '../components/ui/Badge';
 import { Field, Modal } from '../components/ui/Modal';
+import { Icon } from '../components/ui/Icon';
 
 export function BusinessSelect() {
   const navigate = useNavigate();
@@ -93,7 +94,7 @@ export function BusinessSelect() {
                     type === t ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-ink-300 text-ink-600 hover:bg-ink-50'
                   }`}
                 >
-                  {t === 'barbershop' ? '💈 Barbershop' : '🚗 Car Wash'}
+                  {t === 'barbershop' ? <><Icon name="scissors" size={16} /> Barbershop</> : <><Icon name="car" size={16} /> Car Wash</>}
                 </button>
               ))}
             </div>

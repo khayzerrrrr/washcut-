@@ -28,9 +28,9 @@ washcut-project/
 
 | Fitur | Barbershop | Car Wash |
 |-------|-----------|----------|
-| Booking janji temu | ✅ | ✅ |
-| Manajemen layanan & harga | ✅ (potong rambut, styling) | ✅ (cuci, detailing) |
-| Karyawan / antrian | ✅ | ✅ |
+| Booking janji temu | Ya | Ya |
+| Manajemen layanan & harga | Ya (potong rambut, styling) | Ya (cuci, detailing) |
+| Karyawan / antrian | Ya | Ya |
 | Modul khusus | Klien profil & riwayat gaya | Paket & membership kendaraan |
 
 Semua dibedakan lewat field `business.type` (`barbershop` | `car_wash`) dan konfigurasi per tenant.

@@ -10,6 +10,7 @@ import { Services } from './pages/Services';
 import { Customers } from './pages/Customers';
 import { Bookings } from './pages/Bookings';
 import { Checkout } from './pages/Checkout';
+import { TenantsAdmin } from './pages/TenantsAdmin';
 import { AppLayout } from './components/layout/AppLayout';
 
 function BusinessGate() {
@@ -33,6 +34,7 @@ export function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/business" element={<BusinessSelect />} />
+        <Route path="/tenants" element={<TenantsAdmin />} />
         <Route path="/app/:businessId" element={<BusinessGate />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />

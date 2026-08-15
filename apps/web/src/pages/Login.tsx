@@ -27,11 +27,16 @@ export function Login() {
           <label className="label !text-ink-400 mt-4">Password</label>
           <input className="input !bg-ink-900 !border-ink-600 !text-white" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button type="submit" className="btn-primary mt-6 w-full">
-            Masuk
+            Masuk sebagai Owner
           </button>
-          <p className="mt-4 text-center text-xs text-ink-500">
-            Demo: klik "Masuk" langsung masuk ke daftar bisnis.
-          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/tenants')}
+            className="btn-outline mt-3 w-full !border-ink-600 !text-white hover:!bg-ink-800"
+          >
+            Masuk sebagai Super Admin
+          </button>
+          <p className="mt-4 text-center text-xs text-ink-500">Demo: klik tombol untuk masuk.</p>
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">

@@ -1,6 +1,17 @@
 export type BusinessType = 'barbershop' | 'car_wash';
 
+export type Role = 'super_admin' | 'owner' | 'staff' | 'customer';
+
 export type BusinessStatus = 'active' | 'suspended' | 'trial';
+
+export interface User {
+  id: string;
+  role: Role;
+  name: string;
+  email: string;
+  /** null untuk super_admin (bukan anggota tenant) */
+  businessId?: string;
+}
 
 export interface Business {
   id: string;
