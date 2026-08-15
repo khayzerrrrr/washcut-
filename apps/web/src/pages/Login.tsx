@@ -67,9 +67,6 @@ export function Login() {
           <button type="submit" className="btn-primary mt-6 w-full" disabled={busy}>
             {busy ? <><span className="btn-spinner" /> Memproses...</> : 'Masuk'}
           </button>
-          <p className="mt-4 text-center text-xs text-ink-500">
-            Demo: admin@washcut.id / admin1234 · owner@kings.id / demo1234
-          </p>
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">
