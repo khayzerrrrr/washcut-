@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { db } from '../db.js';
+import { db, nextId } from '../db.js';
 import { signToken } from './token.js';
 import { authenticate } from './middleware.js';
 import { verifyPassword } from './password.js';
@@ -17,6 +17,37 @@ export function registerAuthRoutes(router: Router) {
     const user = db.users.find((u) => u.email === email);
     if (!user || !verifyPassword(password, user.passwordHash, user.salt)) {
       return res.status(401).json({ ok: false, error: { code: 'INVALID_CREDENTIALS', message: 'Email atau password salah' } });
+    }
+    // Cek masa demo/trial tenant
+    if (user.businessId) {
+      const biz = db.businesses.find((b) => b.id === user.businessId);
+      if (biz?.demoUntil) {
+        const exp = new Date(biz.demoUntil).getTime();
+        const now = Date.now();
+        if (exp < now) {
+          return res.status(403).json({ ok: false, error: { code: 'DEMO_EXPIRED', message: 'Akun demo telah berakhir. Hubungi admin untuk memperpanjang.' } });
+        }
+        const daysLeft = Math.ceil((exp - now) / 86400000);
+        if (daysLeft <= 3) {
+          const alreadyReminded = db.notifications.some(
+            (n) =>
+              n.businessId === user.businessId &&
+              !n.read &&
+              n.title.toLowerCase().includes('demo') &&
+              now - new Date(n.createdAt).getTime() < 86400000,
+          );
+          if (!alreadyReminded) {
+            db.notifications.push({
+              id: nextId('notifications'),
+              businessId: user.businessId,
+              title: daysLeft <= 0 ? 'Akun demo berakhir hari ini' : `Akun demo berakhir dalam ${daysLeft} hari`,
+              message: 'Hubungi admin untuk memperpanjang masa demo Anda.',
+              read: false,
+              createdAt: new Date().toISOString(),
+            });
+          }
+        }
+      }
     }
     const token = signToken(
       { sub: user.id, role: user.role, businessId: user.businessId, name: user.name, email: user.email, ...(user.position ? { position: user.position } : {}) },

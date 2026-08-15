@@ -11,6 +11,7 @@ const createTenantSchema = z.object({
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'slug hanya huruf kecil, angka, dan dash'),
   ownerEmail: z.string().email().optional(),
   ownerPassword: z.string().min(6).optional(),
+  demoDays: z.number().int().min(0).max(365).optional(),
 });
 
 /**
@@ -31,7 +32,7 @@ export function registerTenantRoutes(router: Router) {
       return res.status(409).json({ ok: false, error: { code: 'DUPLICATE_SLUG', message: 'Slug sudah dipakai' } });
     }
     const now = new Date().toISOString();
-    const { ownerEmail, ownerPassword, ...rest } = parsed.data;
+    const { ownerEmail, ownerPassword, demoDays, ...rest } = parsed.data;
     let ownerId = req.user!.sub;
     if (ownerEmail) {
       if (!ownerPassword) {
@@ -52,11 +53,13 @@ export function registerTenantRoutes(router: Router) {
       db.users.push(owner);
       ownerId = owner.id;
     }
+    const demoUntil = demoDays && demoDays > 0 ? new Date(Date.now() + demoDays * 86400000).toISOString() : undefined;
     const business = {
       id: nextId('businesses'),
       ...rest,
       status: 'trial' as const,
       ownerId,
+      ...(demoUntil ? { demoUntil } : {}),
       createdAt: now,
       updatedAt: now,
     };
@@ -68,10 +71,18 @@ export function registerTenantRoutes(router: Router) {
     const b = db.businesses.find((x) => x.id === req.params.id);
     if (!b) return res.status(404).json({ ok: false, error: { code: 'NOT_FOUND', message: 'Tenant tidak ditemukan' } });
     const status = req.body.status;
-    if (!['active', 'suspended', 'trial'].includes(status)) {
+    if (status !== undefined && !['active', 'suspended', 'trial'].includes(status)) {
       return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'status tidak valid' } });
     }
-    b.status = status;
+    if (status !== undefined) b.status = status;
+    // Perpanjang / atur masa demo (hari) — opsional
+    const demoDays = req.body.demoDays;
+    if (demoDays !== undefined) {
+      if (typeof demoDays !== 'number' || demoDays < 0 || demoDays > 365) {
+        return res.status(400).json({ ok: false, error: { code: 'VALIDATION', message: 'demoDays harus angka 0-365' } });
+      }
+      b.demoUntil = demoDays > 0 ? new Date(Date.now() + demoDays * 86400000).toISOString() : undefined;
+    }
     b.updatedAt = new Date().toISOString();
     res.json({ ok: true, data: b });
   });

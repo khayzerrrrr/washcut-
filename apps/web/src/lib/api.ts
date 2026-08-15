@@ -15,6 +15,7 @@ export interface CreateBusinessInput {
   slug?: string;
   ownerEmail?: string;
   ownerPassword?: string;
+  demoDays?: number;
 }
 
 export const api = {

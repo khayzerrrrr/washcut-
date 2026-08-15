@@ -19,6 +19,7 @@ export function TenantsAdmin() {
   const [type, setType] = useState<Business['type']>('barbershop');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
+  const [demoDays, setDemoDays] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -47,6 +48,7 @@ export function TenantsAdmin() {
         type,
         ...(ownerEmail ? { ownerEmail } : {}),
         ...(ownerEmail && ownerPassword ? { ownerPassword } : {}),
+        ...(demoDays ? { demoDays: Number(demoDays) } : {}),
       });
       setBusy(false);
       if (r.ok) {
@@ -55,6 +57,7 @@ export function TenantsAdmin() {
         setName('');
         setOwnerEmail('');
         setOwnerPassword('');
+        setDemoDays('');
       }
     } catch (err) {
       setBusy(false);
@@ -97,13 +100,14 @@ export function TenantsAdmin() {
                   <th className="th">Tenant</th>
                   <th className="th">Jenis Usaha</th>
                   <th className="th">Status</th>
+                  <th className="th">Masa Demo</th>
                   <th className="th">Dibuat</th>
                   <th className="th text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-50">
                 {loading
-                  ? <tr><td colSpan={5}><TableSkeleton rows={4} cols={4} /></td></tr>
+                  ? <tr><td colSpan={6}><TableSkeleton rows={4} cols={5} /></td></tr>
                   : tenants.map((t) => (
                   <tr key={t.id} className="hover:bg-ink-50/50">
                     <td className="td">
@@ -124,6 +128,16 @@ export function TenantsAdmin() {
                     </td>
                     <td className="td">
                       <Badge tone={statusTone(t.status)}>{statusLabel(t.status)}</Badge>
+                    </td>
+                    <td className="td">
+                      {t.demoUntil ? (
+                        <span className="text-xs">
+                          {new Date(t.demoUntil).toLocaleDateString('id-ID')}
+                          <span className="ml-1 text-ink-400">({Math.max(0, Math.ceil((new Date(t.demoUntil).getTime() - Date.now()) / 86400000))} hari)</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs text-ink-400">—</span>
+                      )}
                     </td>
                     <td className="td">{new Date(t.createdAt).toLocaleDateString('id-ID')}</td>
                     <td className="td text-right">
@@ -179,6 +193,9 @@ export function TenantsAdmin() {
           </Field>
           <Field label="Password Owner (opsional, min 6)">
             <input className="input" type="password" value={ownerPassword} onChange={(e) => setOwnerPassword(e.target.value)} placeholder="Minimal 6 karakter" />
+          </Field>
+          <Field label="Durasi Demo (hari, opsional)">
+            <input className="input" type="number" min={0} max={365} value={demoDays} onChange={(e) => setDemoDays(e.target.value)} placeholder="cth: 14 — kosongkan jika bukan akun demo" />
           </Field>
           <button type="submit" className="btn-primary w-full" disabled={busy}>
             {busy ? <><span className="btn-spinner" /> Membuat...</> : 'Buat Tenant'}

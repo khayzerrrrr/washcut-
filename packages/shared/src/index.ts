@@ -30,6 +30,8 @@ export interface Business {
   commissionEnabled?: boolean;
   /** persentase komisi staff (0-100), default 0 */
   commissionRate?: number;
+  /** batas akhir masa demo/trial (ISO datetime). Kosong = tidak ada batas. */
+  demoUntil?: string;
   createdAt: string;
   updatedAt: string;
 }
