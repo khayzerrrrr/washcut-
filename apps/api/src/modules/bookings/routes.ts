@@ -64,12 +64,14 @@ export function registerBookingRoutes(router: Router) {
       return res.status(409).json({ ok: false, error: { code: 'SLOT_CONFLICT', message: 'Slot sudah dipesan' } });
     }
     const vehicle = parsed.data.vehicleId ? db.vehicles.find((v) => v.id === parsed.data.vehicleId && v.businessId === tenantId) : undefined;
+    const staff = parsed.data.staffId ? db.users.find((u) => u.id === parsed.data.staffId && u.businessId === tenantId) : undefined;
     const booking = {
       id: nextId('bookings'),
       businessId: tenantId,
       ...parsed.data,
       customerId,
       serviceName: service.name,
+      staffName: staff?.name,
       vehiclePlate: vehicle?.plateNumber,
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),

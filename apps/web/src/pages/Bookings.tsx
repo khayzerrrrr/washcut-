@@ -1,21 +1,34 @@
 import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import type { Booking, Business, Payment } from '@washcut/shared';
+import type { Booking, Business, Customer, Payment, ServiceItem, User, Vehicle } from '@washcut/shared';
 import { api, formatDate, formatDateKey, formatRupiah, formatTime } from '../lib/api';
 import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui/Card';
 import { Badge, statusLabel, statusTone } from '../components/ui/Badge';
-import { Modal } from '../components/ui/Modal';
+import { Field, Modal } from '../components/ui/Modal';
+import { Icon } from '../components/ui/Icon';
 
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const;
 
 export function Bookings() {
   const { business } = useOutletContext<{ business: Business }>();
+  const isWash = business.type === 'car_wash';
   const [list, setList] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('all');
   const [payments, setPayments] = useState<Payment[] | null>(null);
   const today = formatDateKey(new Date());
+
+  // Form state
+  const [open, setOpen] = useState(false);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [staff, setStaff] = useState<User[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [form, setForm] = useState({ serviceId: '', customerId: '', customerName: '', startsAt: '', staffId: '', vehicleId: '', notes: '' });
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -55,12 +68,59 @@ export function Bookings() {
     }
   };
 
+  const openForm = () => {
+    setForm({ serviceId: '', customerId: '', customerName: '', startsAt: '', staffId: '', vehicleId: '', notes: '' });
+    setFormError('');
+    Promise.all([
+      api.listServices(business.id).then((r) => r.ok && setServices(r.data.filter((s) => s.active))),
+      api.listCustomers(business.id).then((r) => r.ok && setCustomers(r.data)),
+      api.listStaffAccounts(business.id).then((r) => r.ok && setStaff(r.data.filter((u) => u.role === 'staff'))),
+      isWash ? api.listVehicles(business.id).then((r) => r.ok && setVehicles(r.data)) : Promise.resolve(),
+    ]);
+    setOpen(true);
+  };
+
+  const isWalkIn = form.customerId === '';
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!form.serviceId || !form.startsAt) return;
+    setBusy(true);
+    setFormError('');
+    try {
+      const selectedCustomer = customers.find((c) => c.id === form.customerId);
+      const r = await api.createBooking(business.id, {
+        serviceId: form.serviceId,
+        customerId: isWalkIn ? undefined : form.customerId,
+        customerName: isWalkIn ? form.customerName : selectedCustomer?.name ?? '',
+        startsAt: new Date(form.startsAt).toISOString(),
+        staffId: form.staffId || undefined,
+        vehicleId: isWash ? form.vehicleId || undefined : undefined,
+        walkIn: isWalkIn || undefined,
+        notes: form.notes || undefined,
+      });
+      setBusy(false);
+      if (r.ok) {
+        setOpen(false);
+        load();
+      }
+    } catch (err) {
+      setBusy(false);
+      setFormError((err as { error?: { message?: string } })?.error?.message ?? 'Gagal membuat janji');
+    }
+  };
+
   return (
     <>
       <PageHeader
         title="Pesanan"
         subtitle={`Jadwal ${business.name} · ${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`}
-        action={<button className="btn-outline btn-sm" onClick={openPayments}>Riwayat Pembayaran</button>}
+        action={
+          <div className="flex gap-2">
+            <button className="btn-outline btn-sm" onClick={openPayments}>Riwayat Pembayaran</button>
+            <button className="btn-primary btn-sm" onClick={openForm}><Icon name="plus" size={14} /> Tambah Janji</button>
+          </div>
+        }
       />
 
       {error && (
@@ -89,7 +149,7 @@ export function Bookings() {
           {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
         </div>
       ) : rows.length === 0 ? (
-        <EmptyState title="Tidak ada booking" hint="Coba filter lain." />
+        <EmptyState title="Belum ada janji" hint="Klik 'Tambah Janji' untuk membuat janji temu pertama." />
       ) : (
         <div className="space-y-3">
           {rows.map((b) => (
@@ -148,6 +208,73 @@ export function Bookings() {
             ))}
           </div>
         )}
+      </Modal>
+
+      <Modal open={open} onClose={() => setOpen(false)} title="Tambah Janji">
+        <form onSubmit={submit} className="space-y-4">
+          {formError && (
+            <div className="flex items-center gap-2 rounded-xl border border-danger-500/40 bg-danger-500/10 px-3 py-2 text-sm text-danger-600">
+              <Icon name="alert" size={15} />
+              {formError}
+            </div>
+          )}
+
+          <Field label="Layanan">
+            <select className="input" required value={form.serviceId} onChange={(e) => setForm({ ...form, serviceId: e.target.value })}>
+              <option value="">Pilih layanan…</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>{s.name} · {formatRupiah(s.price)} · {s.durationMin} mnt</option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Pelanggan">
+            <select className="input" value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}>
+              <option value="">Walk-in (pelanggan baru)</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </Field>
+
+          {isWalkIn && (
+            <Field label="Nama pelanggan">
+              <input className="input" required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="cth: Budi Santoso" />
+            </Field>
+          )}
+
+          <Field label="Tanggal & jam">
+            <input className="input" type="datetime-local" required value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} />
+          </Field>
+
+          <Field label={isWash ? 'Staff (washer)' : 'Barber'}>
+            <select className="input" value={form.staffId} onChange={(e) => setForm({ ...form, staffId: e.target.value })}>
+              <option value="">Tanpa penugasan</option>
+              {staff.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </Field>
+
+          {isWash && (
+            <Field label="Kendaraan">
+              <select className="input" value={form.vehicleId} onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}>
+                <option value="">Tanpa kendaraan</option>
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>{v.plateNumber} · {v.brand} {v.model}</option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          <Field label="Catatan (opsional)">
+            <textarea className="input" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="cth: ingin potongan pendek" />
+          </Field>
+
+          <button type="submit" className="btn-primary w-full" disabled={busy}>
+            {busy ? <><span className="btn-spinner" /> Menyimpan...</> : 'Simpan Janji'}
+          </button>
+        </form>
       </Modal>
     </>
   );
