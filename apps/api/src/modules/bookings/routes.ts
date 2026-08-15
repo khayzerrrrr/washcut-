@@ -7,9 +7,18 @@ let nextId = 1;
 
 const createSchema = z.object({
   businessId: z.string().min(1),
+  customerId: z.string().min(1),
   customerName: z.string().min(1),
   serviceId: z.string().min(1),
+  serviceName: z.string().min(1),
   startsAt: z.string().datetime(),
+  endsAt: z.string().datetime(),
+  amount: z.number().nonnegative(),
+  staffId: z.string().optional(),
+  staffName: z.string().optional(),
+  vehicleId: z.string().optional(),
+  vehiclePlate: z.string().optional(),
+  walkIn: z.boolean().optional(),
   notes: z.string().optional(),
 });
 
