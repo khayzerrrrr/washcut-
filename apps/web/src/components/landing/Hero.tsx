@@ -50,7 +50,7 @@ export function Hero({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent" />
 
       <Suspense fallback={null}>
-        <Hero3D />
+        <Hero3D vertical={vertical} />
       </Suspense>
 
       <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-32 sm:pt-36 lg:pt-40">
