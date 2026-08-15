@@ -22,6 +22,7 @@ import { Faq } from '../components/landing/Faq';
 import { FinalCta } from '../components/landing/FinalCta';
 import { Footer } from '../components/landing/Footer';
 import { CtaBand } from '../components/landing/CtaBand';
+import { FloatingWhatsApp } from '../components/landing/FloatingWhatsApp';
 
 export function Landing() {
   const [vertical, setVertical] = useState<Vertical>('barbershop');
@@ -59,6 +60,7 @@ export function Landing() {
         <FinalCta />
       </main>
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }

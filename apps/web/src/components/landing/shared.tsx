@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 import { Icon } from '../ui/Icon';
 
+// Nomor admin WashCut (WhatsApp)
+export const WHATSAPP_NUMBER = '628970991994';
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Halo WashCut, saya ingin bertanya lebih lanjut.')}`;
+
 export function Section({
   id,
   dark = false,
