@@ -12,10 +12,20 @@ import { registerMembershipRoutes } from './modules/membership/routes.js';
 import { registerBranchRoutes } from './modules/branches/routes.js';
 import { registerReportsRoutes } from './modules/reports/routes.js';
 import { registerOperationsRoutes } from './modules/operations/routes.js';
+import { initStore, persistDb } from './db.js';
 
 export function createApp() {
   const app = express();
   app.use(express.json());
+
+  initStore();
+
+  app.use((req, res, next) => {
+    res.on('finish', () => {
+      if (req.method !== 'GET' && req.method !== 'HEAD' && res.statusCode < 500) persistDb();
+    });
+    next();
+  });
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true, uptime: process.uptime() });

@@ -1,5 +1,7 @@
 import type { ActivityLog, AppNotification, Booking, Branch, Business, Customer, Expense, InventoryItem, InventoryMovement, Member, MembershipPlan, Payment, Product, QueueItem, ServiceItem, User, Vehicle } from '@washcut/shared';
 import { hashPassword } from './auth/password.js';
+import Database from 'better-sqlite3';
+import { join } from 'node:path';
 
 /** User internal API: tambahan passwordHash/salt, TIDAK dikembalikan ke client. */
 export type StoredUser = User & { passwordHash: string; salt: string };
@@ -157,4 +159,53 @@ export function nextId(kind: keyof typeof next): string {
   const id = String(next[kind]++);
   const prefix = { users: 'u', businesses: 'b', services: 's', customers: 'c', vehicles: 'v', bookings: 'bk', payments: 'p', queue: 'q', products: 'p', inventory: 'inv', inventoryMovements: 'mv', membershipPlans: 'mp', members: 'm', branches: 'br', expenses: 'e', notifications: 'n', activityLogs: 'al' }[kind];
   return `${prefix}${id}`;
+}
+
+const collections: (keyof DB)[] = ['users', 'businesses', 'services', 'customers', 'vehicles', 'bookings', 'payments', 'queue', 'products', 'inventory', 'inventoryMovements', 'membershipPlans', 'members', 'branches', 'expenses', 'notifications', 'activityLogs'];
+
+let store: Database.Database | null = null;
+let initialized = false;
+
+function seedState(): { db: DB; next: typeof next } {
+  return { db: structuredClone(db), next: { ...next } };
+}
+
+/** Simpan seluruh snapshot ke SQLite (tabel kv). */
+export function persistDb(): void {
+  if (!store) return;
+  const upsert = store.prepare('INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)');
+  const tx = store.transaction(() => {
+    for (const c of collections) upsert.run(c, JSON.stringify(db[c]));
+    upsert.run('next', JSON.stringify(next));
+  });
+  tx();
+}
+
+/** Muat snapshot dari SQLite ke db in-memory. Jika kosong, seed lalu persist. */
+export function initStore(): void {
+  if (initialized) return;
+  initialized = true;
+  const path = process.env.DB_PATH || join(process.cwd(), 'washcut.db');
+  store = new Database(path);
+  store.exec('CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT)');
+  const rows = store.prepare('SELECT key, value FROM kv').all() as { key: string; value: string }[];
+  if (rows.length === 0) {
+    persistDb();
+    return;
+  }
+  for (const r of rows) {
+    if (r.key === 'next') {
+      next = JSON.parse(r.value);
+    } else if ((collections as string[]).includes(r.key)) {
+      (db as unknown as Record<string, unknown>)[r.key] = JSON.parse(r.value);
+    }
+  }
+}
+
+/** Kosongkan DB file (test) dan repopulate dari seed contoh. */
+export function resetDb(): void {
+  const seed = seedState();
+  for (const c of collections) (db as unknown as Record<string, unknown>)[c] = structuredClone(seed.db[c]);
+  next = { ...seed.next };
+  persistDb();
 }

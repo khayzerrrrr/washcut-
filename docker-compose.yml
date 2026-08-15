@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DB_PATH: /data/washcut.db
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET wajib diisi di .env}
+    volumes:
+      - washcut_data:/data
+    restart: unless-stopped
+    networks:
+      - washcut
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - washcut
+
+volumes:
+  washcut_data:
+
+networks:
+  washcut:
+    driver: bridge

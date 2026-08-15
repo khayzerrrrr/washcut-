@@ -28,6 +28,7 @@ async function login(email: string, password: string) {
 }
 
 async function main() {
+  process.env.DB_PATH = ':memory:'; // tidak menimpa DB dev
   const server = createApp().listen(PORT);
 
   const admin = await login('admin@washcut.id', 'admin1234');
