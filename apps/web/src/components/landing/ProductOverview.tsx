@@ -1,11 +1,35 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
 
-const stats = [
-  ['cash', 'Pendapatan', 'Rp 184,5 jt', '+12% bulan ini'],
-  ['calendar', 'Janji temu hari ini', '24', '8 tersedia'],
-  ['clock', 'Antrian aktif', '7', 'perkiraan 40 menit'],
-] as const;
+const stats: Record<Vertical, readonly (readonly [string, string, string, string])[]> = {
+  barbershop: [
+    ['cash', 'Pendapatan', 'Rp 184,5 jt', '+12% bulan ini'],
+    ['calendar', 'Janji temu hari ini', '24', '8 tersedia'],
+    ['scissors', 'Kursi aktif', '8', '4 barber'],
+  ],
+  car_wash: [
+    ['cash', 'Pendapatan', 'Rp 184,5 jt', '+12% bulan ini'],
+    ['clock', 'Antrian aktif', '7', 'perkiraan 40 menit'],
+    ['car', 'Bay tersedia', '6', '2 terisi'],
+  ],
+};
+
+const sales: Record<
+  Vertical,
+  readonly (readonly [string, number, string])[]
+> = {
+  barbershop: [
+    ['Potong Rambut', 72, 'brand'],
+    ['Cukur Jenggot', 58, 'cyan'],
+    ['Styling & Hair Tattoo', 41, 'info'],
+  ],
+  car_wash: [
+    ['Cuci Kapsul', 72, 'brand'],
+    ['Cuci + Interior', 58, 'cyan'],
+    ['Detailing Eksterior', 41, 'info'],
+  ],
+};
 
 const overviewFeatures = [
   'Performa staf',
@@ -14,7 +38,9 @@ const overviewFeatures = [
   'Penjualan layanan',
 ];
 
-export function ProductOverview() {
+export function ProductOverview({ vertical }: { vertical: Vertical }) {
+  const currentStats = stats[vertical];
+  const currentSales = sales[vertical];
   return (
     <Section id="produk">
       <SectionHeader
@@ -37,7 +63,7 @@ export function ProductOverview() {
           </div>
 
           <div className="grid gap-4 pt-5 sm:grid-cols-3">
-            {stats.map(([icon, label, value, hint]) => (
+            {currentStats.map(([icon, label, value, hint]) => (
               <div key={label} className="rounded-2xl border border-ink-200 bg-ink-50 p-4">
                 <div className="flex items-center gap-2 text-ink-500">
                   <Icon name={icon} size={15} />
@@ -61,11 +87,7 @@ export function ProductOverview() {
             <div className="rounded-2xl border border-ink-200 bg-ink-50 p-4">
               <p className="text-sm font-semibold text-ink-700">Penjualan layanan</p>
               <ul className="mt-4 space-y-3">
-                {[
-                  ['Potong Rambut', 72, 'brand'],
-                  ['Cuci Premium', 58, 'cyan'],
-                  ['Grooming + Cuci', 41, 'info'],
-                ].map(([label, value, tone]) => (
+                {currentSales.map(([label, value, tone]) => (
                   <li key={label as string}>
                     <div className="flex justify-between text-xs font-medium text-ink-600">
                       <span>{label}</span>

@@ -1,5 +1,19 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
+
+const topServices: Record<Vertical, readonly (readonly [string, number, string])[]> = {
+  barbershop: [
+    ['Potong Rambut', 92, 'cyan'],
+    ['Cukur Jenggot', 74, 'brand'],
+    ['Royal Treatment', 51, 'info'],
+  ],
+  car_wash: [
+    ['Cuci Premium', 92, 'cyan'],
+    ['Detailing', 74, 'brand'],
+    ['Coating', 51, 'info'],
+  ],
+};
 
 const kpis = [
   ['cash', 'Pendapatan', 'Rp 184,5 jt', '+12%'],
@@ -8,7 +22,8 @@ const kpis = [
   ['tag', 'Rata-rata transaksi', 'Rp 148rb', '+4%'],
 ] as const;
 
-export function Analytics() {
+export function Analytics({ vertical }: { vertical: Vertical }) {
+  const services = topServices[vertical];
   return (
     <Section id="analitik" dark>
       <SectionHeader
@@ -70,11 +85,7 @@ export function Analytics() {
           <div className="card-dark p-5">
             <p className="text-sm font-semibold text-white">Layanan terlaris</p>
             <ul className="mt-4 space-y-3">
-              {[
-                ['Cuci Premium', 92, 'cyan'],
-                ['Potong + Beard', 74, 'brand'],
-                ['Detailing', 51, 'info'],
-              ].map(([label, value, tone]) => (
+              {services.map(([label, value, tone]) => (
                 <li key={label as string}>
                   <div className="flex justify-between text-xs font-medium text-ink-300">
                     <span>{label}</span>

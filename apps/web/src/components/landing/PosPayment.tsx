@@ -1,5 +1,6 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
 
 const methods = [
   ['cash', 'Tunai'],
@@ -8,13 +9,30 @@ const methods = [
   ['wallet', 'Kartu'],
 ] as const;
 
-const lineItems = [
-  ['Potong Rambut', 'Rp 45.000'],
-  ['Beard Grooming', 'Rp 25.000'],
-  ['Diskon member', '- Rp 7.000'],
-] as const;
+const transactions: Record<
+  Vertical,
+  { items: readonly (readonly [string, string])[]; total: string }
+> = {
+  barbershop: {
+    items: [
+      ['Potong Rambut', 'Rp 45.000'],
+      ['Beard Grooming', 'Rp 25.000'],
+      ['Diskon member', '- Rp 7.000'],
+    ],
+    total: 'Rp 63.000',
+  },
+  car_wash: {
+    items: [
+      ['Cuci Premium', 'Rp 50.000'],
+      ['Interior Detail', 'Rp 35.000'],
+      ['Diskon member', '- Rp 7.000'],
+    ],
+    total: 'Rp 78.000',
+  },
+};
 
-export function PosPayment() {
+export function PosPayment({ vertical }: { vertical: Vertical }) {
+  const { items: lineItems, total } = transactions[vertical];
   return (
     <Section id="kasir">
       <SectionHeader
@@ -43,7 +61,7 @@ export function PosPayment() {
           </ul>
           <div className="flex items-center justify-between border-t border-ink-100 bg-ink-50 px-5 py-4">
             <span className="text-sm font-semibold text-ink-600">Total</span>
-            <span className="font-display text-xl font-extrabold text-ink-900">Rp 63.000</span>
+            <span className="font-display text-xl font-extrabold text-ink-900">{total}</span>
           </div>
           <div className="flex flex-wrap gap-2 px-5 py-4">
             {methods.map(([icon, label]) => (

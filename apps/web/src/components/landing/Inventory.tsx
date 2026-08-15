@@ -1,12 +1,21 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
 
-const items = [
-  ['Shampoo Premium 1L', 42, 'brand'],
-  ['Gel Rambut 120ml', 12, 'warn'],
-  ['Kain Microfiber', 4, 'danger'],
-  ['Pewangi Interior', 18, 'cyan'],
-] as const;
+const items: Record<Vertical, readonly (readonly [string, number, string])[]> = {
+  barbershop: [
+    ['Shampoo Premium 1L', 42, 'brand'],
+    ['Gel Rambut 120ml', 12, 'warn'],
+    ['Pomade Kuat 100g', 8, 'warn'],
+    ['Masker Rambut', 4, 'danger'],
+  ],
+  car_wash: [
+    ['Shampo Mobil 5L', 42, 'brand'],
+    ['Kain Microfiber', 18, 'cyan'],
+    ['Polesan Compound', 8, 'warn'],
+    ['Pewangi Interior', 4, 'danger'],
+  ],
+};
 
 const features = [
   ['box', 'Katalog produk', 'Simpan produk, varian, dan harga beli–jual.'],
@@ -15,7 +24,8 @@ const features = [
   ['chart', 'Pergerakan stok', 'Lacak barang masuk, keluar, dan terpakai.'],
 ] as const;
 
-export function Inventory() {
+export function Inventory({ vertical }: { vertical: Vertical }) {
+  const currentItems = items[vertical];
   return (
     <Section id="inventori">
       <SectionHeader
@@ -35,7 +45,7 @@ export function Inventory() {
             <span className="text-xs text-ink-500">diperbarui real-time</span>
           </div>
           <ul className="divide-y divide-ink-100 px-5">
-            {items.map(([name, stock, tone]) => (
+            {currentItems.map(([name, stock, tone]) => (
               <li key={name as string} className="flex items-center gap-4 py-3.5">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-ink-900">{name}</p>

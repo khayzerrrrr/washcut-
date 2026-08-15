@@ -1,19 +1,38 @@
 import { Section, SectionHeader } from './shared';
 import { Icon } from '../ui/Icon';
+import type { Vertical } from './Hero';
 
-const fields = [
-  ['users', 'Nama & kontak'],
-  ['repeat', 'Riwayat kunjungan'],
-  ['tag', 'Layanan favorit'],
-  ['cash', 'Total pengeluaran'],
-  ['gift', 'Membership'],
-  ['car', 'Kendaraan'],
-  ['settings', 'Preferensi'],
-  ['clock', 'Kunjungan terakhir'],
-  ['calendar', 'Janji berikutnya'],
-] as const;
+const fields: Record<
+  Vertical,
+  readonly (readonly [string, string])[]
+> = {
+  barbershop: [
+    ['users', 'Nama & kontak'],
+    ['repeat', 'Riwayat kunjungan'],
+    ['tag', 'Layanan favorit'],
+    ['cash', 'Total pengeluaran'],
+    ['gift', 'Membership'],
+    ['scissors', 'Profil rambut'],
+    ['settings', 'Preferensi'],
+    ['clock', 'Kunjungan terakhir'],
+    ['calendar', 'Janji berikutnya'],
+  ],
+  car_wash: [
+    ['users', 'Nama & kontak'],
+    ['repeat', 'Riwayat kunjungan'],
+    ['tag', 'Layanan favorit'],
+    ['cash', 'Total pengeluaran'],
+    ['gift', 'Membership'],
+    ['car', 'Kendaraan'],
+    ['settings', 'Preferensi'],
+    ['clock', 'Kunjungan terakhir'],
+    ['calendar', 'Janji berikutnya'],
+  ],
+};
 
-export function CustomerProfile() {
+export function CustomerProfile({ vertical }: { vertical: Vertical }) {
+  const currentFields = fields[vertical];
+  const favorite = vertical === 'barbershop' ? 'Potong Rambut + Beard' : 'Cuci + Interior';
   return (
     <Section id="pelanggan">
       <SectionHeader
@@ -48,7 +67,7 @@ export function CustomerProfile() {
             {[
               ['Kunjungan terakhir', '3 hari lalu'],
               ['Total kunjungan', '24'],
-              ['Layanan favorit', 'Potong Rambut + Beard'],
+              ['Layanan favorit', favorite],
               ['Total pengeluaran', 'Rp 2,1 jt'],
               ['Janji berikutnya', 'Sabtu, 10:30'],
             ].map(([k, v]) => (
@@ -63,7 +82,7 @@ export function CustomerProfile() {
         <div>
           <p className="text-sm font-semibold text-ink-700">Semua tersimpan dalam satu profil</p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {fields.map(([icon, label]) => (
+            {currentFields.map(([icon, label]) => (
               <li key={label} className="flex items-center gap-3 rounded-xl border border-ink-200 bg-white px-4 py-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                   <Icon name={icon} size={16} />

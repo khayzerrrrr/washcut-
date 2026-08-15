@@ -32,7 +32,7 @@ export function Landing() {
         <Hero vertical={vertical} onSelect={setVertical} />
         <Problem vertical={vertical} />
         <Solution />
-        <ProductOverview />
+        <ProductOverview vertical={vertical} />
         <div className="bg-ink-50">
           <div className="mx-auto max-w-6xl px-6 pb-4">
             <CtaBand
@@ -42,13 +42,13 @@ export function Landing() {
           </div>
         </div>
         {vertical === 'barbershop' ? <BarbershopManagement /> : <CarwashManagement />}
-        <CustomerProfile />
-        <Booking />
+        <CustomerProfile vertical={vertical} />
+        <Booking vertical={vertical} />
         <Queue />
         <Staff />
-        <PosPayment />
-        <Inventory />
-        <Analytics />
+        <PosPayment vertical={vertical} />
+        <Inventory vertical={vertical} />
+        <Analytics vertical={vertical} />
         <Branches />
         <Mobile />
         <Automation />

@@ -104,7 +104,7 @@ export function Hero({
           </ul>
         </div>
 
-        <FloatingDashboard />
+        <FloatingDashboard vertical={vertical} />
       </div>
     </section>
   );
@@ -140,7 +140,22 @@ function BusinessButton({
   );
 }
 
-function FloatingDashboard() {
+function FloatingDashboard({ vertical }: { vertical: Vertical }) {
+  const stats =
+    vertical === 'barbershop'
+      ? ([
+          ['Pendapatan hari ini', 'Rp 4,2 jt', 'success'],
+          ['Janji temu', '18', 'brand'],
+          ['Barber aktif', '6', 'warn'],
+          ['Pelanggan baru', '12', 'cyan'],
+        ] as const)
+      : ([
+          ['Pendapatan hari ini', 'Rp 4,2 jt', 'success'],
+          ['Antrian aktif', '6', 'warn'],
+          ['Bay tersedia', '3', 'brand'],
+          ['Pelanggan baru', '12', 'cyan'],
+        ] as const);
+
   return (
     <div className="mx-auto mt-16 max-w-3xl lg:mt-20">
       <div className="rounded-2xl border border-white/10 bg-ink-800/80 p-4 shadow-2xl shadow-brand-950/40 backdrop-blur sm:p-6">
@@ -153,12 +168,7 @@ function FloatingDashboard() {
           <span className="text-xs font-semibold text-ink-400">WashCut — Dashboard</span>
         </div>
         <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4">
-          {[
-            ['Pendapatan hari ini', 'Rp 4,2 jt', 'success'],
-            ['Janji temu', '18', 'brand'],
-            ['Antrian aktif', '6', 'warn'],
-            ['Pelanggan baru', '12', 'cyan'],
-          ].map(([label, value, tone]) => (
+          {stats.map(([label, value, tone]) => (
             <div key={label} className="rounded-xl border border-white/10 bg-ink-900/60 p-3">
               <p className="text-[11px] font-medium text-ink-400">{label}</p>
               <p className={`mt-1 text-lg font-bold ${tone === 'success' ? 'text-success-400' : tone === 'warn' ? 'text-warn-400' : tone === 'cyan' ? 'text-cyan-400' : 'text-brand-400'}`}>
