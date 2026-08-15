@@ -2,6 +2,9 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 
+# Build tools untuk kompilasi native module (better-sqlite3)
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # Install seluruh workspace (monorepo) untuk resolve @washcut/shared
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
