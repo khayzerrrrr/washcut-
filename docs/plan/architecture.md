@@ -13,7 +13,7 @@
 ## 2. Struktur Repo
 
 ```
-washcut-saas/
+washcut-project/
 ├── apps/
 │   ├── web/              # Frontend React + Vite (SPA)
 │   └── api/              # Backend REST API (Express + TS)

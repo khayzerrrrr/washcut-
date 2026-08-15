@@ -16,7 +16,7 @@ Baca dokumen plan sebelum membangun fitur (sumber kebenaran untuk agent AI):
 ## Arsitektur
 
 ```
-washcut-saas/
+washcut-project/
 ├── apps/
 │   ├── api/        # Backend REST API (Express + TypeScript)
 │   └── web/        # Frontend (React + Vite + TypeScript)
