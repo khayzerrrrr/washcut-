@@ -55,12 +55,26 @@ Modul (di `apps/api/src/modules/`):
 
 **Aturan:** modul inti tidak boleh import logika modul lain langsung; gunakan service publik atau shared. Ini menjaga agar modul car_wash (vehicles) tidak mencemari barbershop.
 
-## 5. Frontend
+## 5. Frontend (FRONTEND-FIRST)
 
+- **Fase v0.2 dibangun UI dulu** dengan data mock, sebelum backend nyata — supaya tampilan & alur jelas. Backend dicolok tanpa mengubah tampilan.
 - SPA React + Vite, proxy `/api` → `localhost:4000`.
 - Struktur halaman per role: `login`, `owner/dashboard`, `owner/services`, `owner/bookings`, `owner/customers`, `kasir/checkout`, dst.
 - **Diferensiasi vertikal di UI:** komponen `VehicleForm`/`VehicleList` hanya dirender jika `business.type === 'car_wash'`; `HairProfileForm` hanya untuk `barbershop`. Dasar: field `business.type` + konfigurasi modul aktif.
-- Design system dari skill `ui-ux-pro-max` / `ui-design` (tokens: warna, spacing, tipografi).
+- Design system dari skill `ui-ux-pro-max` / `ui-design` (tokens: warna, spacing, tipografi). Mobile-first karena target HP.
+- **PWA-ready sejak v0.2**: manifest, theme color, responsive, installable (target iPhone).
+
+## 5b. Distribusi Aplikasi
+
+Satu codebase React → tiga target, semua pakai web build yang sama:
+
+| Target | Teknologi | Catatan |
+|--------|-----------|---------|
+| iPhone | **PWA** | Install via Safari; gratis, tanpa App Store. Notif via WhatsApp server-side |
+| Android | **Capacitor** | `.apk` native, plugin native (FCM, kamera); sideload / Play Store |
+| Windows | **Tauri** | `.exe` kecil & ringan (alternatif: Electron) |
+
+Backend API tetap server (wajib). Tambahan build wrapper ada di `apps/desktop` (Tauri) & `apps/mobile` (Capacitor) saat v0.7.
 
 ## 6. Alur Utama (contoh: booking + payment)
 

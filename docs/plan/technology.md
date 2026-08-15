@@ -45,7 +45,18 @@
 - Skills aktif: `ui-ux-pro-max`, `ui-design`, `ui-styling`, `tailwind-design-system`, `responsive-design`, `react-state-management`, `api-design-principles`, `architecture-patterns`, `postgresql`, `ponytail`, `ponytail-review`.
 - Verifikasi wajib sebelum "selesai": `npm run typecheck` && `npm run build`.
 
-## 6. Anti-Aturan (jangan dilakukan)
+## 6. Distribusi (PWA / Mobile / Desktop)
+
+| Target | Teknologi | Masuk |
+|--------|-----------|-------|
+| iPhone | **PWA** (manifest + service worker) | v0.2 (siap) |
+| Android | **Capacitor** → `.apk` | v0.7 |
+| Windows | **Tauri** → `.exe` | v0.7 |
+
+- Satu web build dipakai semua target (React + Vite) — tambah wrapper saja, tanpa tulis ulang.
+- Alasan pilihan: PWA gratis & tanpa App Store (cocok untuk iPhone); Capacitor ringan & plugin native Android; Tauri menghasilkan `.exe` kecil (Rust) dibanding Electron.
+
+## 7. Anti-Aturan (jangan dilakukan)
 
 - Jangan tambah framework UI berat (MUI/Ant) — Tailwind + komponen kecil.
 - Jangan buat microservices, K8s, atau message queue di MVP.

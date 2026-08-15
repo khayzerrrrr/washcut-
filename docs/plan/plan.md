@@ -49,33 +49,46 @@
 - [ ] P2 Membership cuci (unlimited bulanan/tahunan)
 - [ ] P2 Antrian bay/penjadwalan slot
 
-## 4. MVP (Scope pertama yang dikerjakan)
+## 4. Fase Pertama: FRONTEND-FIRST (dikerjakan sekarang)
 
-Urutan build untuk MVP — versi `0.x`:
+Strategi: bangun **tampilan yang bagus dulu** (pakai skill `ui-ux-pro-max`, `ui-design`, `ui-styling`, `tailwind-design-system`) memakai **data contoh (mock)**, supaya visual & alur pengguna jelas sebelum backend dibangun. Backend dicolokkan kemudian tanpa mengubah tampilan.
 
-1. **Auth** — register owner, login, JWT.
-2. **Tenant** — buat bisnis dengan `type` (barbershop/car_wash), status langganan.
-3. **Katalog layanan** — CRUD service per bisnis.
-4. **Customer + kendaraan** — CRUD customer; profil kendaraan hanya muncul untuk `car_wash`.
-5. **Booking** — buat/list/ubah/cancel; validasi slot & durasi.
-6. **Kasir & pembayaran** — checkout booking, catat payment, partial.
-7. **Dashboard dasar** — ringkasan hari ini (booking, pendapatan, status).
-8. **Laporan** — pendapatan harian/mingguan/bulanan, layanan terlaris.
+Urutan build fase pertama (v0.2):
+1. **Design system** — warna, spacing, tipografi, komponen dasar (button, card, form, table) + Tailwind.
+2. **Landing + Login** — halaman brand WashCut, login owner/staff.
+3. **Dashboard owner** — ringkasan hari ini (booking, pendapatan, status) berbasis mock.
+4. **Halaman modul** — Services, Customers (+ Vehicles untuk car_wash), Bookings/kalender, Checkout/kasir.
+5. **Responsif (mobile-first)** + siap **PWA** (manifest, installable) — karena target iPhone pakai PWA.
+6. Diferensiasi vertikal di UI: `business.type` menentukan form/halaman (vehicle vs hair profile).
 
-**Keluar-MVP:** notifikasi, membership, komisi, multi-cabang.
+Semua halaman memakai mock data dari `packages/shared`; diganti ke API nyata di v0.3.
 
 ## 5. Roadmap Milestone
 
 | Versi | Isi | Status |
 |-------|-----|--------|
-| v0.1 | Skeleton monorepo + auth + tenant (type) | ✅ terpasang |
-| v0.2 | Katalog layanan + customer + kendaraan + booking | 🔜 berikutnya |
-| v0.3 | Kasir & pembayaran + dashboard | todo |
-| v0.4 | Laporan + notifikasi reminder | todo |
-| v0.5 | Membership car wash + paket barbershop | todo |
+| v0.1 | Skeleton monorepo + AI agents + dokumen plan | ✅ terpasang |
+| v0.2 | **Frontend-first**: design system + UI lengkap (login, dashboard, services, customers, bookings, checkout) + mock data + PWA-ready | 🔜 berikutnya |
+| v0.3 | Backend: auth + tenant + services + customers + bookings; hubungkan ke frontend | todo |
+| v0.4 | Kasir & pembayaran + dashboard data real | todo |
+| v0.5 | Laporan + notifikasi reminder | todo |
+| v0.6 | Membership car wash + paket barbershop | todo |
+| v0.7 | **Distribusi**: PWA (iOS) + Capacitor Android (.apk) + Tauri desktop (.exe) | todo |
 | v1.0 | Beta multi-tenant aman (isolasi data + subscription billing) | todo |
 
-## 6. Kriteria "Done" per Fitur (dipakai approver)
+## 6. Distribusi Aplikasi
+
+Satu codebase (React), tiga target — semua memakai web build yang sama:
+
+| Target | Teknologi | Catatan |
+|--------|-----------|---------|
+| iPhone | **PWA** | Install dari Safari (Add to Home Screen); gratis, tanpa App Store. Notif via WhatsApp server-side |
+| Android | **Capacitor** | Bungkus web build jadi `.apk` native; sideload atau Play Store nanti |
+| Windows | **Tauri** | `.exe` kecil & ringan (alternatif: Electron) |
+
+Backend API tetap server (wajib). PWA siap sejak v0.2 (manifest + service worker).
+
+## 7. Kriteria "Done" per Fitur (dipakai approver)
 
 - Typecheck & build lolos (`npm run typecheck`, `npm run build`).
 - API memakai envelope `ApiResponse<T>` + validasi zod.
@@ -83,7 +96,7 @@ Urutan build untuk MVP — versi `0.x`:
 - UI memakai komponen yang sudah ada / design system (lihat `architecture.md`).
 - Tidak ada fitur "untuk nanti" tanpa diminta (aturan ponytail).
 
-## 7. Metrik Sukses
+## 8. Metrik Sukses
 
 - Waktu buat bisnis baru < 2 menit.
 - Waktu booking baru < 30 detik.
