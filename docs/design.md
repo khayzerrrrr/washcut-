@@ -135,3 +135,20 @@
 - ❌ Teks abu-abu di atas abu-abu (kontras < 4.5:1)
 - ❌ Placeholder sebagai satu-satunya label form
 - ❌ Transisi instan (0ms) atau semua pakai durasi sama
+
+## 11. Anti "AI Slop" — Filter Wajib
+
+Aturan lengkap di `docs/antislop/` (core `antislop.md` + skill `antislop-ui.md`). Untuk UI, copy, people, dan mobile layout, baca file itu **sebelum** menulis. Di bawah ini inti yang relevan dengan WashCut:
+
+- **Hard gate (mutlak):**
+  - Jangan default warna `indigo`/gradient hero 2-stop — WashCut punya aksen merah sendiri.
+  - Jangan emoji sebagai ikon fitur (sudah dilarang §6).
+  - Jangan headline/judul miring (`italic`) sebagai ornamen; emphasis lewat weight/warna/underline.
+  - Jangan angka/statistik yang dibuat-buat — hanya pakai data nyata atau placeholder `—`.
+  - Jangan shadow/glow berlebihan, gradient acak, atau rounded-everything tanpa tujuan.
+- **Dengan alasan (wajib ada tujuan):** glassmorphism, background gradient, chip/pill, kartu rounded-2xl — setiap keputusan dekoratif harus punya alasan fungsional.
+- **Quality lock:** konsistensi radius (rounded-xl/2xl), spacing (4/8px), satu aksen per layar, tidak mencampur > 2 font, tidak memakai pattern/gradient yang sama di banyak halaman.
+- **Liveliness:** beri gerak/ritme (mis. angka counter, kartu naik halus) supaya tidak terasa generik; hormati `prefers-reduced-motion`.
+- **Delivery gate:** sebelum dianggap selesai, audit hasil terhadap §10 dan list ini. Hasil steril = arah hilang, bukan filter gagal.
+
+Skill `hallmark` juga terpasang di `.opencode/skills/hallmark` (anti-AI-slop dengan 58 slop-test gates) — untuk redesign besar gunakan `hallmark audit`/`redesign`.

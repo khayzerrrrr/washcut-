@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { Icon } from '../components/ui/Icon';
+
+const Hero3D = lazy(() => import('../components/three/Hero3D').then((m) => ({ default: m.Hero3D })));
 
 const features = [
   {
@@ -46,6 +49,9 @@ export function Landing() {
       </header>
 
       <section className="relative mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
+        <Suspense fallback={null}>
+          <Hero3D />
+        </Suspense>
         <span className="badge ring-1 ring-inset ring-brand-500/40 bg-brand-500/10 text-brand-300">
           Platform SaaS untuk bisnis jasa lokal
         </span>
